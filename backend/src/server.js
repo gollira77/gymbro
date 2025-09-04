@@ -3,16 +3,18 @@
  * Configura Express, middlewares globales y rutas principales
  */
 
-const express = require("express")
-const cors = require("cors")
-const helmet = require("helmet")
-const rateLimit = require("express-rate-limit")
-require("dotenv").config()
+import express from "express"
+import cors from "cors"
+import helmet from "helmet"
+import rateLimit from "express-rate-limit"
+import dotenv from "dotenv"
 
-const { sequelize } = require("./config/database")
-const routes = require("./routes")
-const { errorHandler, notFound } = require("./middlewares/errorMiddleware")
-const { logger } = require("./utils/logger")
+import { sequelize } from "./config/database.js"
+import routes from "./routes/index.js"
+import { errorHandler, notFound } from "./middlewares/errorMiddleware.js"
+import { logger } from "./utils/logger.js"
+
+dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -84,5 +86,3 @@ const startServer = async () => {
 }
 
 startServer()
-
-module.exports = app
