@@ -1,72 +1,30 @@
-/**
- * Helper para manejo de fechas
- */
+import dayjs from "dayjs"
 
-import moment from "moment"
+// Formatear fecha
+export const formatDate = (date, format = "DD/MM/YYYY") => dayjs(date).format(format)
 
-/**
- * Formatear fecha para mostrar
- */
-export const formatDate = (date, format = "DD/MM/YYYY") => {
-  return moment(date).format(format)
-}
+// Formatear fecha y hora
+export const formatDateTime = (date, format = "DD/MM/YYYY HH:mm") => dayjs(date).format(format)
 
-/**
- * Formatear fecha y hora
- */
-export const formatDateTime = (date, format = "DD/MM/YYYY HH:mm") => {
-  return moment(date).format(format)
-}
+// Calcular edad
+export const calculateAge = (birthDate) => dayjs().diff(dayjs(birthDate), "year")
 
-/**
- * Calcular edad a partir de fecha de nacimiento
- */
-export const calculateAge = (birthDate) => {
-  return moment().diff(moment(birthDate), "years")
-}
+// Fecha pasada / futura
+export const isPastDate = (date) => dayjs(date).isBefore(dayjs())
+export const isFutureDate = (date) => dayjs(date).isAfter(dayjs())
 
-/**
- * Verificar si una fecha está en el pasado
- */
-export const isPastDate = (date) => {
-  return moment(date).isBefore(moment())
-}
+// Inicio y fin de semana
+export const getWeekRange = (date = new Date()) => ({
+  start: dayjs(date).startOf("week").toDate(),
+  end: dayjs(date).endOf("week").toDate(),
+})
 
-/**
- * Verificar si una fecha está en el futuro
- */
-export const isFutureDate = (date) => {
-  return moment(date).isAfter(moment())
-}
+// Inicio y fin de mes
+export const getMonthRange = (date = new Date()) => ({
+  start: dayjs(date).startOf("month").toDate(),
+  end: dayjs(date).endOf("month").toDate(),
+})
 
-/**
- * Obtener inicio y fin de semana
- */
-export const getWeekRange = (date = new Date()) => {
-  const start = moment(date).startOf("week")
-  const end = moment(date).endOf("week")
-  return { start: start.toDate(), end: end.toDate() }
-}
-
-/**
- * Obtener inicio y fin de mes
- */
-export const getMonthRange = (date = new Date()) => {
-  const start = moment(date).startOf("month")
-  const end = moment(date).endOf("month")
-  return { start: start.toDate(), end: end.toDate() }
-}
-
-/**
- * Agregar días a una fecha
- */
-export const addDays = (date, days) => {
-  return moment(date).add(days, "days").toDate()
-}
-
-/**
- * Restar días a una fecha
- */
-export const subtractDays = (date, days) => {
-  return moment(date).subtract(days, "days").toDate()
-}
+// Sumar / restar días
+export const addDays = (date, days) => dayjs(date).add(days, "day").toDate()
+export const subtractDays = (date, days) => dayjs(date).subtract(days, "day").toDate()

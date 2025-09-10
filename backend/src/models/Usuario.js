@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
+import bcrypt from "bcryptjs"
 
 const Usuario = sequelize.define(
   "usuarios",
@@ -13,6 +14,9 @@ const Usuario = sequelize.define(
       type: DataTypes.STRING(100),
       allowNull: false,
       unique: true,
+      validate: {
+        isEmail: { msg: "Debe ser un email válido" },
+      },
     },
     password: {
       type: DataTypes.STRING,
@@ -30,13 +34,33 @@ const Usuario = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
     },
+    token_recuperacion: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    fecha_expiracion_token: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     tableName: "usuarios",
     timestamps: true,
     createdAt: "fecha_alta",
     updatedAt: "fecha_actualizacion",
-  },
+  }
 )
+
+Usuario.beforeCreate(async (usuario, options) => {
+  if (usuario.password) {
+    usuario.password = await bcrypt.hash(usuario.password, 12)
+  }
+})
+
+Usuario.beforeUpdate(async (usuario, options) => {
+  if (usuario.changed("password")) {
+    usuario.password = await bcrypt.hash(usuario.password, 12)
+  }
+})
 
 export default Usuario

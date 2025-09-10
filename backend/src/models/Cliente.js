@@ -1,8 +1,11 @@
-import { DataTypes } from "sequelize"
+import { DataTypes, Model } from "sequelize"
 import { sequelize } from "../config/database.js"
 
-const Cliente = sequelize.define(
-  "clientes",
+const GENDERS = ["masculino", "femenino", "otro"] // Enum dinámico, puedes expandirlo
+
+class Cliente extends Model {}
+
+Cliente.init(
   {
     id_cliente: {
       type: DataTypes.INTEGER,
@@ -12,61 +15,64 @@ const Cliente = sequelize.define(
     id_usuario: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: "usuarios",
-        key: "id_usuario",
-      },
+      unique: true,
     },
-    nom_cliente: {
-      type: DataTypes.STRING(100),
+    nombre: {
+      type: DataTypes.STRING(50),
       allowNull: false,
+      validate: { len: [2, 50] },
     },
-    ape_cliente: {
-      type: DataTypes.STRING(100),
+    apellido: {
+      type: DataTypes.STRING(50),
       allowNull: false,
+      validate: { len: [2, 50] },
     },
-    dni_cliente: {
+    dni: {
       type: DataTypes.STRING(20),
       allowNull: false,
       unique: true,
+      validate: { len: [6, 20] },
     },
-    fecha_nacimiento_cliente: {
+    fecha_nacimiento: {
       type: DataTypes.DATEONLY,
       allowNull: false,
+      validate: { isDate: true },
     },
-    telefono_cliente: {
-      type: DataTypes.STRING(20),
-      allowNull: true,
-    },
-    direccion_cliente: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    altura_cliente: {
-      type: DataTypes.DECIMAL(5, 2),
-      allowNull: true,
-      comment: "Altura en metros",
-    },
-    peso_cliente: {
-      type: DataTypes.DECIMAL(5, 2),
-      allowNull: true,
-      comment: "Peso en kilogramos",
-    },
-    genero_cliente: {
-      type: DataTypes.ENUM("M", "F", "Otro"),
+    genero: {
+      type: DataTypes.ENUM(...GENDERS),
       allowNull: false,
     },
-    fecha_alta: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+    telefono: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      validate: { len: [6, 20] },
+    },
+    direccion: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
     },
   },
   {
+    sequelize,
+    modelName: "Cliente",
     tableName: "clientes",
     timestamps: true,
-    createdAt: "fecha_alta",
-    updatedAt: "fecha_actualizacion",
-  },
+    hooks: {
+      beforeSave: (cliente) => {
+        // Capitalizar nombre y apellido
+        if (cliente.nombre) cliente.nombre = capitalize(cliente.nombre)
+        if (cliente.apellido) cliente.apellido = capitalize(cliente.apellido)
+      },
+    },
+  }
 )
+
+// Función de capitalización
+const capitalize = (str) =>
+  str
+    .toLowerCase()
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
 
 export default Cliente

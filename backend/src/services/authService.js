@@ -2,56 +2,45 @@ import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
 import { Op } from "sequelize"
-import { Usuario, Rol, Cliente, Entrenador } from "../models/index.js"
+import { sequelize, Usuario, Rol, Cliente, Entrenador } from "../models/index.js"
 import Especialidad from "../models/Especialidad.js"
 import { sendEmail } from "../utils/emailHelper.js"
 import { logger } from "../utils/logger.js"
+import { AuthError, ValidationError } from "../utils/errors.js"
 
 class AuthService {
   /**
    * Iniciar sesión de usuario
    */
   async login(email, password) {
-    // Buscar usuario con rol incluido
     const usuario = await Usuario.findOne({
       where: { email, activo: true },
       include: [
-        {
-          model: Rol,
-          as: "rol",
-          attributes: ["rol", "descrip_rol"],
-        },
+        { model: Rol, as: "rol", attributes: ["rol", "descrip_rol"] },
       ],
     })
 
     if (!usuario) {
-      throw new Error("Credenciales inválidas")
+      logger.warn(`Login fallido: email no encontrado - ${email}`)
+      throw new AuthError("Credenciales inválidas")
     }
 
-    // Verificar contraseña
     const isValidPassword = await bcrypt.compare(password, usuario.password)
     if (!isValidPassword) {
-      throw new Error("Credenciales inválidas")
+      logger.warn(`Login fallido: contraseña incorrecta - ${email}`)
+      throw new AuthError("Credenciales inválidas")
     }
 
-    // Generar token JWT
     const token = this.generateToken(usuario)
+    logger.info(`Login exitoso: ${email}`)
 
-    // Obtener datos adicionales según el rol
     let datosAdicionales = null
     if (usuario.rol.rol === "cliente") {
-      datosAdicionales = await Cliente.findOne({
-        where: { id_usuario: usuario.id_usuario },
-      })
+      datosAdicionales = await Cliente.findOne({ where: { id_usuario: usuario.id_usuario } })
     } else if (usuario.rol.rol === "entrenador") {
       datosAdicionales = await Entrenador.findOne({
         where: { id_usuario: usuario.id_usuario },
-        include: [
-          {
-            model: Especialidad,
-            as: "especialidad",
-          },
-        ],
+        include: [{ model: Especialidad, as: "especialidad" }],
       })
     }
 
@@ -67,53 +56,39 @@ class AuthService {
   }
 
   /**
-   * Registrar nuevo usuario
+   * Registrar nuevo usuario (con transacción)
    */
   async register(userData) {
     const { email, password, id_rol, datosPersonales } = userData
 
-    // Verificar si el usuario ya existe
-    const existingUser = await Usuario.findOne({ where: { email } })
-    if (existingUser) {
-      throw new Error("El email ya está registrado")
-    }
+    return await sequelize.transaction(async (t) => {
+      const existingUser = await Usuario.findOne({ where: { email }, transaction: t })
+      if (existingUser) {
+        logger.warn(`Registro fallido: email ya registrado - ${email}`)
+        throw new ValidationError("El email ya está registrado")
+      }
 
-    // Encriptar contraseña
-    const hashedPassword = await bcrypt.hash(password, 12)
+      const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Crear usuario
-    const usuario = await Usuario.create({
-      email,
-      password: hashedPassword,
-      id_rol,
+      const usuario = await Usuario.create(
+        { email, password: hashedPassword, id_rol },
+        { transaction: t }
+      )
+
+      if (id_rol === 2) {
+        await Cliente.create({ id_usuario: usuario.id_usuario, ...datosPersonales }, { transaction: t })
+      } else if (id_rol === 3) {
+        await Entrenador.create({ id_usuario: usuario.id_usuario, ...datosPersonales }, { transaction: t })
+      }
+
+      logger.info(`Usuario registrado correctamente: ${email}`)
+
+      const token = this.generateToken(usuario)
+      return {
+        token,
+        usuario: { id: usuario.id_usuario, email: usuario.email, rol: id_rol },
+      }
     })
-
-    // Crear datos adicionales según el rol
-    if (id_rol === 2) {
-      // Cliente
-      await Cliente.create({
-        id_usuario: usuario.id_usuario,
-        ...datosPersonales,
-      })
-    } else if (id_rol === 3) {
-      // Entrenador
-      await Entrenador.create({
-        id_usuario: usuario.id_usuario,
-        ...datosPersonales,
-      })
-    }
-
-    // Generar token
-    const token = this.generateToken(usuario)
-
-    return {
-      token,
-      usuario: {
-        id: usuario.id_usuario,
-        email: usuario.email,
-        rol: id_rol,
-      },
-    }
   }
 
   /**
@@ -121,23 +96,16 @@ class AuthService {
    */
   async forgotPassword(email) {
     const usuario = await Usuario.findOne({ where: { email } })
-
     if (!usuario) {
-      // No revelar si el email existe o no por seguridad
+      logger.warn(`Solicitud de recuperación de contraseña: email no encontrado - ${email}`)
       return
     }
 
-    // Generar token de recuperación
     const resetToken = crypto.randomBytes(32).toString("hex")
     const tokenExpiry = new Date(Date.now() + 3600000) // 1 hora
 
-    // Guardar token en la base de datos
-    await usuario.update({
-      token_recuperacion: resetToken,
-      fecha_expiracion_token: tokenExpiry,
-    })
+    await usuario.update({ token_recuperacion: resetToken, fecha_expiracion_token: tokenExpiry })
 
-    // Enviar email con el token
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`
 
     await sendEmail({
@@ -151,6 +119,8 @@ class AuthService {
         <p>Si no solicitaste esto, ignora este email.</p>
       `,
     })
+
+    logger.info(`Token de recuperación de contraseña generado para: ${email}`)
   }
 
   /**
@@ -158,25 +128,18 @@ class AuthService {
    */
   async resetPassword(token, newPassword) {
     const usuario = await Usuario.findOne({
-      where: {
-        token_recuperacion: token,
-        fecha_expiracion_token: { [Op.gt]: new Date() },
-      },
+      where: { token_recuperacion: token, fecha_expiracion_token: { [Op.gt]: new Date() } },
     })
 
     if (!usuario) {
-      throw new Error("Token inválido o expirado")
+      logger.warn(`Intento de reset de contraseña con token inválido: ${token}`)
+      throw new AuthError("Token inválido o expirado")
     }
 
-    // Encriptar nueva contraseña
     const hashedPassword = await bcrypt.hash(newPassword, 12)
 
-    // Actualizar contraseña y limpiar token
-    await usuario.update({
-      password: hashedPassword,
-      token_recuperacion: null,
-      fecha_expiracion_token: null,
-    })
+    await usuario.update({ password: hashedPassword, token_recuperacion: null, fecha_expiracion_token: null })
+    logger.info(`Contraseña actualizada correctamente para: ${usuario.email}`)
   }
 
   /**
@@ -185,28 +148,18 @@ class AuthService {
   async verifyToken(token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET)
-
-      const usuario = await Usuario.findByPk(decoded.id, {
-        include: [
-          {
-            model: Rol,
-            as: "rol",
-            attributes: ["rol"],
-          },
-        ],
-      })
+      const usuario = await Usuario.findByPk(decoded.id, { include: [{ model: Rol, as: "rol", attributes: ["rol"] }] })
 
       if (!usuario || !usuario.activo) {
-        throw new Error("Usuario no válido")
+        logger.warn(`Verificación de token fallida: usuario inválido o inactivo - ID: ${decoded.id}`)
+        throw new AuthError("Usuario no válido")
       }
 
-      return {
-        id: usuario.id_usuario,
-        email: usuario.email,
-        rol: usuario.rol.rol,
-      }
+      logger.debug(`Token verificado correctamente para: ${usuario.email}`)
+      return { id: usuario.id_usuario, email: usuario.email, rol: usuario.rol.rol }
     } catch (error) {
-      throw new Error("Token inválido")
+      logger.warn(`Token inválido o expirado`)
+      throw new AuthError("Token inválido")
     }
   }
 
@@ -214,15 +167,14 @@ class AuthService {
    * Generar token JWT
    */
   generateToken(usuario) {
-    return jwt.sign(
-      {
-        id: usuario.id_usuario,
-        email: usuario.email,
-        rol: usuario.id_rol,
-      },
+    const token = jwt.sign(
+      { id: usuario.id_usuario, email: usuario.email, rol: usuario.id_rol },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRE || "7d" },
+      { expiresIn: process.env.JWT_EXPIRE || "30d" }
     )
+
+    logger.debug(`JWT generado para usuario: ${usuario.email}`)
+    return token
   }
 }
 

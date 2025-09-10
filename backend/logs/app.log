@@ -52,3 +52,7 @@
 [2025-09-08T21:16:42.888Z] INFO: POST /api/auth/forgot-password - ::ffff:127.0.0.1 
 [2025-09-08T21:16:49.399Z] INFO: Email enviado: <7c60ef29-b815-a2b1-2c53-01fc86120726@gmail.com> 
 [2025-09-08T21:16:49.400Z] INFO: Solicitud de recuperación de contraseña para: aa@cliente.com 
+[2025-09-10T19:46:04.363Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-10T19:46:05.062Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-10T19:46:05.069Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-10T19:46:05.069Z] INFO: Ambiente: development 
