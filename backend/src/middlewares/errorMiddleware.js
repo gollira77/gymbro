@@ -1,66 +1,26 @@
-/**
- * Middleware de Manejo de Errores
- * Captura y formatea errores de la aplicación
- */
-
+import { errorResponse } from "../utils/responseHelper.js"
 import { logger } from "../utils/logger.js"
 
-/**
- * Middleware para rutas no encontradas
- */
 export const notFound = (req, res, next) => {
-  const error = new Error(`Ruta no encontrada - ${req.originalUrl}`)
-  res.status(404)
-  next(error)
+  return errorResponse(res, `No se encontró la ruta: ${req.originalUrl}`, 404)
 }
 
-/**
- * Middleware global de manejo de errores
- */
 export const errorHandler = (err, req, res, next) => {
-  let statusCode = res.statusCode === 200 ? 500 : res.statusCode
-  let message = err.message
+  logger.error(err.message, { stack: err.stack })
 
-  // Error de Sequelize - Validación
-  if (err.name === "SequelizeValidationError") {
-    statusCode = 400
-    message = err.errors.map((error) => error.message).join(", ")
+  // Si es un error conocido (propio)
+  if (err.name === "ValidationError") {
+    return errorResponse(res, err.message, 400, err.errors || null)
   }
 
-  // Error de Sequelize - Unique constraint
-  if (err.name === "SequelizeUniqueConstraintError") {
-    statusCode = 400
-    message = "Ya existe un registro con estos datos"
+  if (err.name === "AuthError") {
+    return errorResponse(res, err.message, 401)
   }
 
-  // Error de Sequelize - Foreign key constraint
-  if (err.name === "SequelizeForeignKeyConstraintError") {
-    statusCode = 400
-    message = "Referencia inválida a otro registro"
+  if (err.name === "ForbiddenError") {
+    return errorResponse(res, err.message, 403)
   }
 
-  // Error de JWT
-  if (err.name === "JsonWebTokenError") {
-    statusCode = 401
-    message = "Token inválido"
-  }
-
-  if (err.name === "TokenExpiredError") {
-    statusCode = 401
-    message = "Token expirado"
-  }
-
-  // Log del error
-  logger.error(`Error ${statusCode}: ${message}`, {
-    stack: err.stack,
-    url: req.originalUrl,
-    method: req.method,
-    ip: req.ip,
-  })
-
-  res.status(statusCode).json({
-    success: false,
-    message,
-    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
-  })
+  // Error genérico
+  return errorResponse(res, "Error interno del servidor", 500)
 }
