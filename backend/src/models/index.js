@@ -1,10 +1,5 @@
-/**
- * Índice de modelos - Importa y configura todas las asociaciones
- */
-
 import { sequelize } from "../config/database.js"
 
-// Importar todos los modelos
 import Usuario from "./Usuario.js"
 import Rol from "./Rol.js"
 import Cliente from "./Cliente.js"
@@ -30,7 +25,6 @@ import Turno from "./Turno.js"
 import Sueldo from "./Sueldo.js"
 import HorarioEntrenador from "./HorarioEntrenador.js"
 
-// Definir asociaciones
 const setupAssociations = () => {
   // Usuario - Rol
   Usuario.belongsTo(Rol, { foreignKey: "id_rol", as: "rol" })

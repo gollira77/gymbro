@@ -1,8 +1,3 @@
-/**
- * Controlador de Autenticación
- * Maneja login, registro, recuperación de contraseña y verificación de tokens
- */
-
 import authService from "../services/authService.js"
 import { successResponse, errorResponse } from "../utils/responseHelper.js"
 import { logger } from "../utils/logger.js"

@@ -1,6 +1,3 @@
-/**
- * Helper para envío de correos electrónicos
- */
 
 import nodemailer from "nodemailer"
 import { logger } from "./logger.js"

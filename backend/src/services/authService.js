@@ -1,13 +1,7 @@
-/**
- * Servicio de Autenticación
- * Contiene la lógica de negocio para autenticación y autorización
- */
-
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
 import { Op } from "sequelize"
-
 import { Usuario, Rol, Cliente, Entrenador } from "../models/index.js"
 import Especialidad from "../models/Especialidad.js"
 import { sendEmail } from "../utils/emailHelper.js"

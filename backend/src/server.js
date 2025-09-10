@@ -1,14 +1,8 @@
-/**
- * Servidor principal de la aplicación GymBro
- * Configura Express, middlewares globales y rutas principales
- */
-
 import express from "express"
 import cors from "cors"
 import helmet from "helmet"
 import rateLimit from "express-rate-limit"
 import dotenv from "dotenv"
-
 import { sequelize } from "./config/database.js"
 import routes from "./routes/index.js"
 import { errorHandler, notFound } from "./middlewares/errorMiddleware.js"
