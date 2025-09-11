@@ -1,4 +1,5 @@
 import { body } from "express-validator"
+import { Rol } from "../../models/index.js" // importa tu modelo Rol
 
 export const registerValidation = [
   body("email")
@@ -6,8 +7,15 @@ export const registerValidation = [
     .normalizeEmail(),
   body("password")
     .isLength({ min: 6 }).withMessage("La contraseña debe tener al menos 6 caracteres"),
-  body("rol")
-    .isIn(["cliente", "entrenador", "admin"]).withMessage("Rol no válido"),
+  body("id_rol")
+    .notEmpty().withMessage("El rol es obligatorio")
+    .bail()
+    .isInt({ min: 1 }).withMessage("El rol debe ser un número")
+    .bail()
+    .custom(async (value) => {
+      const rol = await Rol.findByPk(value)
+      if (!rol) return Promise.reject("Rol no válido")
+    }),
   body("datosPersonales.nombre")
     .notEmpty().withMessage("El nombre es obligatorio"),
   body("datosPersonales.apellido")
@@ -17,16 +25,22 @@ export const registerValidation = [
 ]
 
 export const loginValidation = [
-  body("email").isEmail().withMessage("El email no es válido"),
-  body("password").notEmpty().withMessage("La contraseña es obligatoria"),
+  body("email")
+    .isEmail().withMessage("El email no es válido")
+    .normalizeEmail(),
+  body("password")
+    .notEmpty().withMessage("La contraseña es obligatoria"),
 ]
 
 export const forgotPasswordValidation = [
-  body("email").isEmail().withMessage("El email no es válido"),
+  body("email")
+    .isEmail().withMessage("El email no es válido")
+    .normalizeEmail(),
 ]
 
 export const resetPasswordValidation = [
-  body("token").notEmpty().withMessage("El token es obligatorio"),
+  body("token")
+    .notEmpty().withMessage("El token es obligatorio"),
   body("newPassword")
     .isLength({ min: 6 }).withMessage("La contraseña debe tener al menos 6 caracteres"),
 ]

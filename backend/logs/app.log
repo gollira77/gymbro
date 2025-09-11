@@ -56,3 +56,39 @@
 [2025-09-10T19:46:05.062Z] INFO: Modelos sincronizados con la base de datos 
 [2025-09-10T19:46:05.069Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
 [2025-09-10T19:46:05.069Z] INFO: Ambiente: development 
+[2025-09-11T15:23:15.990Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-11T15:23:18.290Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-11T15:23:18.296Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-11T15:23:18.296Z] INFO: Ambiente: development 
+[2025-09-11T15:30:31.165Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-11T15:31:01.520Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-11T15:32:31.044Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-11T15:32:39.811Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-11T15:32:42.012Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-11T15:32:42.016Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-11T15:32:42.016Z] INFO: Ambiente: development 
+[2025-09-11T15:32:43.700Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-11T15:32:49.091Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-11T15:33:43.143Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-11T15:36:50.110Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-11T15:36:52.400Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-11T15:36:52.404Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-11T15:36:52.405Z] INFO: Ambiente: development 
+[2025-09-11T15:37:04.580Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-11T15:37:06.924Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-11T15:37:06.928Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-11T15:37:06.929Z] INFO: Ambiente: development 
+[2025-09-11T15:37:20.631Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-11T15:37:21.558Z] INFO: Usuario registrado correctamente: franquivillalba13@gmail.com 
+[2025-09-11T15:37:21.566Z] DEBUG: JWT generado para usuario: franquivillalba13@gmail.com 
+[2025-09-11T15:37:21.569Z] INFO: Nuevo usuario registrado: franquivillalba13@gmail.com 
+[2025-09-11T15:39:45.644Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-11T15:39:47.957Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-11T15:39:47.960Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-11T15:39:47.961Z] INFO: Ambiente: development 
+[2025-09-11T15:39:49.285Z] INFO: POST /api/auth/login - ::ffff:127.0.0.1 
+[2025-09-11T15:39:49.712Z] WARN: Login fallido: contraseña incorrecta - franquivillalba13@gmail.com 
+[2025-09-11T15:39:49.714Z] ERROR: Error en login: {"name":"AuthError","statusCode":401,"errors":null}
+[2025-09-11T15:40:45.884Z] INFO: POST /api/auth/login - ::ffff:127.0.0.1 
+[2025-09-11T15:40:46.297Z] WARN: Login fallido: contraseña incorrecta - franquivillalba13@gmail.com 
+[2025-09-11T15:40:46.298Z] ERROR: Error en login: {"name":"AuthError","statusCode":401,"errors":null}
