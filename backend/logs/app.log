@@ -92,3 +92,7 @@
 [2025-09-11T15:40:45.884Z] INFO: POST /api/auth/login - ::ffff:127.0.0.1 
 [2025-09-11T15:40:46.297Z] WARN: Login fallido: contraseña incorrecta - franquivillalba13@gmail.com 
 [2025-09-11T15:40:46.298Z] ERROR: Error en login: {"name":"AuthError","statusCode":401,"errors":null}
+[2025-09-16T15:51:58.804Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-16T15:51:59.483Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-16T15:51:59.488Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-16T15:51:59.488Z] INFO: Ambiente: development 
