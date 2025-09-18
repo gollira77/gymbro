@@ -1,3 +1,4 @@
+// src/models/index.js
 import { sequelize } from "../config/database.js"
 
 import Usuario from "./Usuario.js"
@@ -34,14 +35,19 @@ const setupAssociations = () => {
   Cliente.belongsTo(Usuario, { foreignKey: "id_usuario", as: "usuario" })
   Usuario.hasOne(Cliente, { foreignKey: "id_usuario", as: "cliente" })
 
+  // Entrenador - Usuario
+  Entrenador.belongsTo(Usuario, { foreignKey: "id_usuario", as: "usuario" })
+  Usuario.hasOne(Entrenador, { foreignKey: "id_usuario", as: "entrenador" })
+
   // Entrenador - Especialidad
-  Entrenador.belongsTo(Especialidad, { foreignKey: "id_especialidad", as: "especialidad" })
-  Especialidad.hasMany(Entrenador, { foreignKey: "id_especialidad", as: "entrenadores" })
+  Entrenador.belongsTo(Especialidad, { foreignKey: "especialidad_id", as: "especialidad" })
+  Especialidad.hasMany(Entrenador, { foreignKey: "especialidad_id", as: "entrenadores" })
 
   // Test - Usuario y TipoTest
   Test.belongsTo(Usuario, { foreignKey: "id_usuario", as: "usuario" })
-  Test.belongsTo(TipoTest, { foreignKey: "id_tipo_test", as: "tipoTest" })
   Usuario.hasMany(Test, { foreignKey: "id_usuario", as: "tests" })
+
+  Test.belongsTo(TipoTest, { foreignKey: "id_tipo_test", as: "tipoTest" })
   TipoTest.hasMany(Test, { foreignKey: "id_tipo_test", as: "tests" })
 
   // Reseña - Usuario
