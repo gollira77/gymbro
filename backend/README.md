@@ -78,9 +78,10 @@ Iniciar sesión de usuario.
 **Request:**
 \`\`\`json
 {
-  "email": "usuario@example.com",
+  "email": "nuevo@example.com",
   "password": "password123"
 }
+
 \`\`\`
 
 **Response:**

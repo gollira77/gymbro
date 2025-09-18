@@ -2,7 +2,7 @@
 import { DataTypes, Model } from "sequelize"
 import { sequelize } from "../config/database.js"
 
-const GENDERS = ["masculino", "femenino", "otro"]
+const GENDERS = ["M", "F", "O"]
 
 class Cliente extends Model {}
 

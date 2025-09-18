@@ -47,74 +47,71 @@ class AuthService {
     }
   }
 
+  
   /**
    * Registro de usuario
    */
   async register(userData) {
-    const { email, password, id_rol, datosPersonales } = userData
+  const { email, password, id_rol, datosPersonales } = userData
 
-    return await sequelize.transaction(async (t) => {
-      // 1️⃣ Verificar si el email ya existe
-      const existingUser = await Usuario.findOne({ where: { email }, transaction: t })
-      if (existingUser) throw new ValidationError("El email ya está registrado")
+  return await sequelize.transaction(async (t) => {
+    // 1️⃣ Verificar si el email ya existe
+    const existingUser = await Usuario.findOne({ where: { email }, transaction: t })
+    if (existingUser) throw new ValidationError("El email ya está registrado")
 
-      // 2️⃣ Hashear contraseña
-      const hashedPassword = await bcrypt.hash(password, 12)
+    // 2️⃣ Hashear contraseña
+    const hashedPassword = await bcrypt.hash(password, 12)
 
-      // 3️⃣ Crear usuario
-      const usuario = await Usuario.create(
-        { email, password: hashedPassword, id_rol },
+    // 3️⃣ Crear usuario
+    const usuario = await Usuario.create(
+      { email, password: hashedPassword, id_rol },
+      { transaction: t }
+    )
+
+    // 4️⃣ Crear perfil según el rol
+    if (id_rol === 1) { // Cliente
+      const { nom_cliente, ape_cliente, dni_cliente, fecha_nacimiento_cliente, genero_cliente } = datosPersonales
+      if (!nom_cliente || !ape_cliente || !dni_cliente || !fecha_nacimiento_cliente || !genero_cliente) {
+        throw new ValidationError("Faltan datos obligatorios para cliente")
+      }
+
+      await Cliente.create(
+        {
+          id_usuario: usuario.id_usuario, // FK segura, ya existe Usuario
+          nombre: nom_cliente,
+          apellido: ape_cliente,
+          dni: dni_cliente,
+          fecha_nacimiento: fecha_nacimiento_cliente,
+          genero: genero_cliente,
+          telefono: datosPersonales.telefono_cliente || null,
+          direccion: datosPersonales.direccion_cliente || null,
+        },
         { transaction: t }
       )
+    } else if (id_rol === 2) { // Entrenador
+      const { nom_entrenador, ape_entrenador, dni_entrenador, fecha_nacimiento_entrenador, id_especialidad, genero } = datosPersonales
+      await Entrenador.create(
+        {
+          id_usuario: usuario.id_usuario,
+          nombre: nom_entrenador,
+          apellido: ape_entrenador,
+          dni: dni_entrenador,
+          fecha_nacimiento: fecha_nacimiento_entrenador,
+          id_especialidad,
+          genero,
+        },
+        { transaction: t }
+      )
+    }
 
-      // 4️⃣ Crear datos según el rol
-      if (id_rol === 1) { // Cliente
-        // Validar campos obligatorios
-        const { nom_cliente, ape_cliente, dni_cliente, fecha_nacimiento_cliente, genero_cliente } = datosPersonales
-        if (!nom_cliente || !ape_cliente || !dni_cliente || !fecha_nacimiento_cliente || !genero_cliente) {
-          throw new ValidationError("Faltan datos obligatorios para cliente")
-        }
-
-        await Cliente.create(
-          { id_usuario: usuario.id_usuario, ...datosPersonales },
-          { transaction: t }
-        )
-      } else if (id_rol === 2) { // Entrenador
-        // Validar campos obligatorios
-        const {
-          nom_entrenador,
-          ape_entrenador,
-          dni_entrenador,
-          fecha_nacimiento_entrenador,
-          telefono_entrenador,
-          direccion_entrenador,
-          id_especialidad
-        } = datosPersonales;
-
-        await Entrenador.create(
-          {
-            id_usuario: usuario.id_usuario,
-            nombre: nom_entrenador,
-            apellido: ape_entrenador,
-            dni: dni_entrenador,
-            fecha_nacimiento: fecha_nacimiento_entrenador,
-            telefono: datosPersonales.telefono_entrenador || null,
-            direccion: datosPersonales.direccion_entrenador || null,
-            id_especialidad: datosPersonales.id_especialidad,
-            genero_entrenador: datosPersonales.genero
-          },
-          { transaction: t }
-        )
-      }
-
-      // 5️⃣ Generar token
-      const token = this.generateToken(usuario)
-      return {
-        token,
-        usuario: { id: usuario.id_usuario, email: usuario.email, rol: id_rol },
-      }
-    })
-  }
+    // 5️⃣ Generar token
+    const token = this.generateToken(usuario)
+    return {
+      token,
+      usuario: { id: usuario.id_usuario, email: usuario.email, rol: id_rol },
+    }
+  })
+}
 
   /**
    * Solicitar recuperación de contraseña

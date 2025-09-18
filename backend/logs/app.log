@@ -167,3 +167,116 @@
 [2025-09-18T10:25:02.608Z] INFO: Ambiente: development 
 [2025-09-18T10:25:11.863Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
 [2025-09-18T10:25:13.667Z] ERROR: Error en registro: {"name":"SequelizeValidationError","errors":[{"message":"Entrenador.nombre cannot be null","type":"notNull Violation","path":"nombre","value":null,"origin":"CORE","instance":{"id_entrenador":null,"id_usuario":17,"telefono":null,"updatedAt":"2025-09-18T10:25:13.619Z","createdAt":"2025-09-18T10:25:13.619Z"},"validatorKey":"is_null","validatorName":null,"validatorArgs":[]},{"message":"Entrenador.apellido cannot be null","type":"notNull Violation","path":"apellido","value":null,"origin":"CORE","instance":{"id_entrenador":null,"id_usuario":17,"telefono":null,"updatedAt":"2025-09-18T10:25:13.619Z","createdAt":"2025-09-18T10:25:13.619Z"},"validatorKey":"is_null","validatorName":null,"validatorArgs":[]},{"message":"Entrenador.dni cannot be null","type":"notNull Violation","path":"dni","value":null,"origin":"CORE","instance":{"id_entrenador":null,"id_usuario":17,"telefono":null,"updatedAt":"2025-09-18T10:25:13.619Z","createdAt":"2025-09-18T10:25:13.619Z"},"validatorKey":"is_null","validatorName":null,"validatorArgs":[]},{"message":"Entrenador.fecha_nacimiento cannot be null","type":"notNull Violation","path":"fecha_nacimiento","value":null,"origin":"CORE","instance":{"id_entrenador":null,"id_usuario":17,"telefono":null,"updatedAt":"2025-09-18T10:25:13.619Z","createdAt":"2025-09-18T10:25:13.619Z"},"validatorKey":"is_null","validatorName":null,"validatorArgs":[]},{"message":"Entrenador.genero cannot be null","type":"notNull Violation","path":"genero","value":null,"origin":"CORE","instance":{"id_entrenador":null,"id_usuario":17,"telefono":null,"updatedAt":"2025-09-18T10:25:13.619Z","createdAt":"2025-09-18T10:25:13.619Z"},"validatorKey":"is_null","validatorName":null,"validatorArgs":[]}]}
+[2025-09-18T12:34:08.473Z] ERROR: Error al inicializar el servidor: {"error":"Unknown database 'gymbro'"}
+[2025-09-18T12:37:38.677Z] ERROR: Error al inicializar el servidor: {"error":"Unknown database 'gymbro'"}
+[2025-09-18T12:37:53.169Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T12:37:53.855Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T12:37:53.859Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T12:37:53.859Z] INFO: Ambiente: development 
+[2025-09-18T12:44:52.903Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-18T12:44:53.805Z] ERROR: Error en registro: {"name":"SequelizeValidationError","errors":[{"message":"Cliente.nombre cannot be null","type":"notNull Violation","path":"nombre","value":null,"origin":"CORE","instance":{"id_cliente":null,"id_usuario":1,"updatedAt":"2025-09-18T12:44:53.800Z","createdAt":"2025-09-18T12:44:53.800Z"},"validatorKey":"is_null","validatorName":null,"validatorArgs":[]},{"message":"Cliente.apellido cannot be null","type":"notNull Violation","path":"apellido","value":null,"origin":"CORE","instance":{"id_cliente":null,"id_usuario":1,"updatedAt":"2025-09-18T12:44:53.800Z","createdAt":"2025-09-18T12:44:53.800Z"},"validatorKey":"is_null","validatorName":null,"validatorArgs":[]},{"message":"Cliente.dni cannot be null","type":"notNull Violation","path":"dni","value":null,"origin":"CORE","instance":{"id_cliente":null,"id_usuario":1,"updatedAt":"2025-09-18T12:44:53.800Z","createdAt":"2025-09-18T12:44:53.800Z"},"validatorKey":"is_null","validatorName":null,"validatorArgs":[]},{"message":"Cliente.fecha_nacimiento cannot be null","type":"notNull Violation","path":"fecha_nacimiento","value":null,"origin":"CORE","instance":{"id_cliente":null,"id_usuario":1,"updatedAt":"2025-09-18T12:44:53.800Z","createdAt":"2025-09-18T12:44:53.800Z"},"validatorKey":"is_null","validatorName":null,"validatorArgs":[]},{"message":"Cliente.genero cannot be null","type":"notNull Violation","path":"genero","value":null,"origin":"CORE","instance":{"id_cliente":null,"id_usuario":1,"updatedAt":"2025-09-18T12:44:53.800Z","createdAt":"2025-09-18T12:44:53.800Z"},"validatorKey":"is_null","validatorName":null,"validatorArgs":[]}]}
+[2025-09-18T13:10:38.389Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T13:10:40.819Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T13:10:40.823Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T13:10:40.824Z] INFO: Ambiente: development 
+[2025-09-18T13:10:45.098Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-18T13:10:46.158Z] INFO: Nuevo usuario registrado: nuevo@example.com 
+[2025-09-18T13:11:57.552Z] INFO: POST /api/auth/login - ::ffff:127.0.0.1 
+[2025-09-18T13:11:57.568Z] ERROR: Error en login: {"name":"AuthError","statusCode":401,"errors":null}
+[2025-09-18T13:12:06.084Z] INFO: POST /api/auth/login - ::ffff:127.0.0.1 
+[2025-09-18T13:12:06.090Z] ERROR: Error en login: {"name":"AuthError","statusCode":401,"errors":null}
+[2025-09-18T13:16:15.549Z] INFO: POST /api/auth/login - ::ffff:127.0.0.1 
+[2025-09-18T13:16:15.976Z] ERROR: Error en login: {"name":"AuthError","statusCode":401,"errors":null}
+[2025-09-18T13:17:42.885Z] INFO: POST /api/auth/login - ::ffff:127.0.0.1 
+[2025-09-18T13:17:43.299Z] ERROR: Error en login: {"name":"AuthError","statusCode":401,"errors":null}
+[2025-09-18T13:32:00.936Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T13:32:03.280Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T13:32:03.284Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T13:32:03.285Z] INFO: Ambiente: development 
+[2025-09-18T13:33:08.313Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-18T13:33:09.198Z] ERROR: Error en registro: {"name":"SequelizeUniqueConstraintError","errors":[{"message":"dni must be unique","type":"unique violation","path":"dni","value":"12345678","origin":"DB","instance":{"id_cliente":null,"id_usuario":3,"nombre":"Juan","apellido":"Pérez","dni":"12345678","fecha_nacimiento":"1990-01-01","genero":"M","telefono":null,"direccion":null,"updatedAt":"2025-09-18T13:33:09.187Z","createdAt":"2025-09-18T13:33:09.187Z"},"validatorKey":"not_unique","validatorName":null,"validatorArgs":[]}],"parent":{"code":"ER_DUP_ENTRY","errno":1062,"sqlState":"23000","sqlMessage":"Duplicate entry '12345678' for key 'dni'","sql":"INSERT INTO `clientes` (`id_cliente`,`id_usuario`,`nombre`,`apellido`,`dni`,`fecha_nacimiento`,`genero`,`telefono`,`direccion`,`created_at`,`updated_at`) VALUES (DEFAULT,?,?,?,?,?,?,?,?,?,?);","parameters":[3,"Juan","Pérez","12345678","1990-01-01","M",null,null,"2025-09-18 13:33:09","2025-09-18 13:33:09"]},"original":{"code":"ER_DUP_ENTRY","errno":1062,"sqlState":"23000","sqlMessage":"Duplicate entry '12345678' for key 'dni'","sql":"INSERT INTO `clientes` (`id_cliente`,`id_usuario`,`nombre`,`apellido`,`dni`,`fecha_nacimiento`,`genero`,`telefono`,`direccion`,`created_at`,`updated_at`) VALUES (DEFAULT,?,?,?,?,?,?,?,?,?,?);","parameters":[3,"Juan","Pérez","12345678","1990-01-01","M",null,null,"2025-09-18 13:33:09","2025-09-18 13:33:09"]},"fields":{"dni":"12345678"},"sql":"INSERT INTO `clientes` (`id_cliente`,`id_usuario`,`nombre`,`apellido`,`dni`,`fecha_nacimiento`,`genero`,`telefono`,`direccion`,`created_at`,`updated_at`) VALUES (DEFAULT,?,?,?,?,?,?,?,?,?,?);"}
+[2025-09-18T13:33:39.514Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-18T13:33:40.329Z] ERROR: Error en registro: {"name":"SequelizeUniqueConstraintError","errors":[{"message":"dni must be unique","type":"unique violation","path":"dni","value":"12345678","origin":"DB","instance":{"id_cliente":null,"id_usuario":4,"nombre":"Juan","apellido":"Pérez","dni":"12345678","fecha_nacimiento":"1990-01-01","genero":"M","telefono":null,"direccion":null,"updatedAt":"2025-09-18T13:33:40.321Z","createdAt":"2025-09-18T13:33:40.321Z"},"validatorKey":"not_unique","validatorName":null,"validatorArgs":[]}],"parent":{"code":"ER_DUP_ENTRY","errno":1062,"sqlState":"23000","sqlMessage":"Duplicate entry '12345678' for key 'dni'","sql":"INSERT INTO `clientes` (`id_cliente`,`id_usuario`,`nombre`,`apellido`,`dni`,`fecha_nacimiento`,`genero`,`telefono`,`direccion`,`created_at`,`updated_at`) VALUES (DEFAULT,?,?,?,?,?,?,?,?,?,?);","parameters":[4,"Juan","Pérez","12345678","1990-01-01","M",null,null,"2025-09-18 13:33:40","2025-09-18 13:33:40"]},"original":{"code":"ER_DUP_ENTRY","errno":1062,"sqlState":"23000","sqlMessage":"Duplicate entry '12345678' for key 'dni'","sql":"INSERT INTO `clientes` (`id_cliente`,`id_usuario`,`nombre`,`apellido`,`dni`,`fecha_nacimiento`,`genero`,`telefono`,`direccion`,`created_at`,`updated_at`) VALUES (DEFAULT,?,?,?,?,?,?,?,?,?,?);","parameters":[4,"Juan","Pérez","12345678","1990-01-01","M",null,null,"2025-09-18 13:33:40","2025-09-18 13:33:40"]},"fields":{"dni":"12345678"},"sql":"INSERT INTO `clientes` (`id_cliente`,`id_usuario`,`nombre`,`apellido`,`dni`,`fecha_nacimiento`,`genero`,`telefono`,`direccion`,`created_at`,`updated_at`) VALUES (DEFAULT,?,?,?,?,?,?,?,?,?,?);"}
+[2025-09-18T13:34:36.338Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-18T13:34:37.186Z] INFO: Nuevo usuario registrado: nuevo2@example.com 
+[2025-09-18T13:36:19.478Z] INFO: POST /api/auth/login - ::ffff:127.0.0.1 
+[2025-09-18T13:36:19.885Z] ERROR: Error en login: {"name":"AuthError","statusCode":401,"errors":null}
+[2025-09-18T13:50:23.389Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T13:50:25.694Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T13:50:25.698Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T13:50:25.699Z] INFO: Ambiente: development 
+[2025-09-18T13:51:03.362Z] INFO: POST /api/auth/login - ::ffff:127.0.0.1 
+[2025-09-18T13:51:03.849Z] ERROR: Error en login: {"name":"AuthError","statusCode":401,"errors":null}
+[2025-09-18T13:52:22.074Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T13:52:22.787Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T13:52:22.791Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T13:52:22.792Z] INFO: Ambiente: development 
+[2025-09-18T13:52:25.977Z] INFO: POST /api/auth/login - ::ffff:127.0.0.1 
+[2025-09-18T13:52:26.035Z] ERROR: Error en login: {"name":"AuthError","statusCode":401,"errors":null}
+[2025-09-18T13:53:53.218Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-18T13:54:32.261Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T13:54:34.659Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T13:54:34.663Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T13:54:34.663Z] INFO: Ambiente: development 
+[2025-09-18T13:54:36.388Z] INFO: POST /api/auth/register - ::ffff:127.0.0.1 
+[2025-09-18T13:54:36.891Z] INFO: Nuevo usuario registrado: nuevo3@example.com 
+[2025-09-18T13:55:07.082Z] INFO: POST /api/auth/login - ::ffff:127.0.0.1 
+[2025-09-18T13:55:07.506Z] INFO: Usuario nuevo3@example.com inició sesión exitosamente 
+[2025-09-18T13:58:41.916Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:05:39.407Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:05:40.405Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:05:40.935Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:06:02.665Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:06:03.836Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:10:17.278Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:10:18.370Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:10:18.594Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:10:19.187Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:10:19.371Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:10:19.557Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:10:19.753Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:10:19.938Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:10:20.193Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:10:26.080Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T14:10:28.343Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T14:10:28.347Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T14:10:28.348Z] INFO: Ambiente: development 
+[2025-09-18T14:10:30.412Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:11:57.095Z] INFO: POST /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:29:36.968Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T14:29:40.045Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T14:29:40.050Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T14:29:40.051Z] INFO: Ambiente: development 
+[2025-09-18T14:29:41.678Z] INFO: GET /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:29:44.325Z] INFO: GET /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:29:45.134Z] INFO: GET /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:29:45.666Z] INFO: GET /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:29:51.891Z] INFO: GET /api/ - ::ffff:127.0.0.1 
+[2025-09-18T14:29:53.066Z] INFO: GET /api/ - ::ffff:127.0.0.1 
+[2025-09-18T14:30:04.191Z] INFO: GET /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:33:55.030Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T14:33:57.994Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T14:33:58.000Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T14:33:58.001Z] INFO: Ambiente: development 
+[2025-09-18T14:34:17.088Z] INFO: GET /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:34:22.921Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T14:34:25.831Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T14:34:25.836Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T14:34:25.837Z] INFO: Ambiente: development 
+[2025-09-18T14:34:28.780Z] INFO: GET /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:37:23.541Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T14:37:26.745Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T14:37:26.750Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T14:37:26.752Z] INFO: Ambiente: development 
+[2025-09-18T14:37:29.973Z] INFO: GET /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:38:53.124Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T14:38:56.145Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T14:38:56.151Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T14:38:56.152Z] INFO: Ambiente: development 
+[2025-09-18T14:39:02.789Z] INFO: GET /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:39:04.295Z] INFO: GET /api/perfil - ::ffff:127.0.0.1 
+[2025-09-18T14:42:00.519Z] INFO: Conexión a la base de datos establecida correctamente 
+[2025-09-18T14:42:03.512Z] INFO: Modelos sincronizados con la base de datos 
+[2025-09-18T14:42:03.517Z] INFO: Servidor GymBro ejecutándose en puerto 3000 
+[2025-09-18T14:42:03.518Z] INFO: Ambiente: development 
+[2025-09-18T14:42:05.860Z] INFO: GET /api/perfil - ::ffff:127.0.0.1 
