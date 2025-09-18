@@ -1,3 +1,4 @@
+// src/services/authService.js
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import crypto from "crypto"
@@ -10,29 +11,20 @@ import { AuthError, ValidationError } from "../utils/errors.js"
 
 class AuthService {
   /**
-   * Iniciar sesión de usuario
+   * Login de usuario
    */
   async login(email, password) {
     const usuario = await Usuario.findOne({
       where: { email, activo: true },
-      include: [
-        { model: Rol, as: "rol", attributes: ["rol", "descrip_rol"] },
-      ],
+      include: [{ model: Rol, as: "rol", attributes: ["rol", "descrip_rol"] }],
     })
 
-    if (!usuario) {
-      logger.warn(`Login fallido: email no encontrado - ${email}`)
-      throw new AuthError("Credenciales inválidas")
-    }
+    if (!usuario) throw new AuthError("Credenciales inválidas")
 
     const isValidPassword = await bcrypt.compare(password, usuario.password)
-    if (!isValidPassword) {
-      logger.warn(`Login fallido: contraseña incorrecta - ${email}`)
-      throw new AuthError("Credenciales inválidas")
-    }
+    if (!isValidPassword) throw new AuthError("Credenciales inválidas")
 
     const token = this.generateToken(usuario)
-    logger.info(`Login exitoso: ${email}`)
 
     let datosAdicionales = null
     if (usuario.rol.rol === "cliente") {
@@ -56,33 +48,66 @@ class AuthService {
   }
 
   /**
-   * Registrar nuevo usuario (con transacción)
+   * Registro de usuario
    */
   async register(userData) {
     const { email, password, id_rol, datosPersonales } = userData
 
     return await sequelize.transaction(async (t) => {
+      // 1️⃣ Verificar si el email ya existe
       const existingUser = await Usuario.findOne({ where: { email }, transaction: t })
-      if (existingUser) {
-        logger.warn(`Registro fallido: email ya registrado - ${email}`)
-        throw new ValidationError("El email ya está registrado")
-      }
+      if (existingUser) throw new ValidationError("El email ya está registrado")
 
+      // 2️⃣ Hashear contraseña
       const hashedPassword = await bcrypt.hash(password, 12)
 
+      // 3️⃣ Crear usuario
       const usuario = await Usuario.create(
         { email, password: hashedPassword, id_rol },
         { transaction: t }
       )
 
-      if (id_rol === 2) {
-        await Cliente.create({ id_usuario: usuario.id_usuario, ...datosPersonales }, { transaction: t })
-      } else if (id_rol === 3) {
-        await Entrenador.create({ id_usuario: usuario.id_usuario, ...datosPersonales }, { transaction: t })
+      // 4️⃣ Crear datos según el rol
+      if (id_rol === 1) { // Cliente
+        // Validar campos obligatorios
+        const { nom_cliente, ape_cliente, dni_cliente, fecha_nacimiento_cliente, genero_cliente } = datosPersonales
+        if (!nom_cliente || !ape_cliente || !dni_cliente || !fecha_nacimiento_cliente || !genero_cliente) {
+          throw new ValidationError("Faltan datos obligatorios para cliente")
+        }
+
+        await Cliente.create(
+          { id_usuario: usuario.id_usuario, ...datosPersonales },
+          { transaction: t }
+        )
+      } else if (id_rol === 2) { // Entrenador
+        // Validar campos obligatorios
+        const {
+          nom_entrenador,
+          ape_entrenador,
+          dni_entrenador,
+          fecha_nacimiento_entrenador,
+          telefono_entrenador,
+          direccion_entrenador,
+          id_especialidad
+        } = datosPersonales;
+
+        await Entrenador.create(
+          {
+            id_usuario: usuario.id_usuario,
+            nombre: nom_entrenador,
+            apellido: ape_entrenador,
+            dni: dni_entrenador,
+            fecha_nacimiento: fecha_nacimiento_entrenador,
+            telefono: datosPersonales.telefono_entrenador || null,
+            direccion: datosPersonales.direccion_entrenador || null,
+            id_especialidad: datosPersonales.id_especialidad,
+            genero_entrenador: datosPersonales.genero
+          },
+          { transaction: t }
+        )
       }
 
-      logger.info(`Usuario registrado correctamente: ${email}`)
-
+      // 5️⃣ Generar token
       const token = this.generateToken(usuario)
       return {
         token,
@@ -96,10 +121,7 @@ class AuthService {
    */
   async forgotPassword(email) {
     const usuario = await Usuario.findOne({ where: { email } })
-    if (!usuario) {
-      logger.warn(`Solicitud de recuperación de contraseña: email no encontrado - ${email}`)
-      return
-    }
+    if (!usuario) return
 
     const resetToken = crypto.randomBytes(32).toString("hex")
     const tokenExpiry = new Date(Date.now() + 3600000) // 1 hora
@@ -119,27 +141,20 @@ class AuthService {
         <p>Si no solicitaste esto, ignora este email.</p>
       `,
     })
-
-    logger.info(`Token de recuperación de contraseña generado para: ${email}`)
   }
 
   /**
-   * Restablecer contraseña con token
+   * Restablecer contraseña
    */
   async resetPassword(token, newPassword) {
     const usuario = await Usuario.findOne({
       where: { token_recuperacion: token, fecha_expiracion_token: { [Op.gt]: new Date() } },
     })
 
-    if (!usuario) {
-      logger.warn(`Intento de reset de contraseña con token inválido: ${token}`)
-      throw new AuthError("Token inválido o expirado")
-    }
+    if (!usuario) throw new AuthError("Token inválido o expirado")
 
     const hashedPassword = await bcrypt.hash(newPassword, 12)
-
     await usuario.update({ password: hashedPassword, token_recuperacion: null, fecha_expiracion_token: null })
-    logger.info(`Contraseña actualizada correctamente para: ${usuario.email}`)
   }
 
   /**
@@ -149,32 +164,22 @@ class AuthService {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET)
       const usuario = await Usuario.findByPk(decoded.id, { include: [{ model: Rol, as: "rol", attributes: ["rol"] }] })
-
-      if (!usuario || !usuario.activo) {
-        logger.warn(`Verificación de token fallida: usuario inválido o inactivo - ID: ${decoded.id}`)
-        throw new AuthError("Usuario no válido")
-      }
-
-      logger.debug(`Token verificado correctamente para: ${usuario.email}`)
+      if (!usuario || !usuario.activo) throw new AuthError("Usuario no válido")
       return { id: usuario.id_usuario, email: usuario.email, rol: usuario.rol.rol }
     } catch (error) {
-      logger.warn(`Token inválido o expirado`)
       throw new AuthError("Token inválido")
     }
   }
 
   /**
-   * Generar token JWT
+   * Generar JWT
    */
   generateToken(usuario) {
-    const token = jwt.sign(
+    return jwt.sign(
       { id: usuario.id_usuario, email: usuario.email, rol: usuario.id_rol },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRE || "30d" }
     )
-
-    logger.debug(`JWT generado para usuario: ${usuario.email}`)
-    return token
   }
 }
 

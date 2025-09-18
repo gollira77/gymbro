@@ -39,7 +39,7 @@ const registerSchema = Joi.object({
   password: Joi.string().min(6).required(),
   id_rol: Joi.number().integer().min(1).required(),
   datosPersonales: Joi.object().when("id_rol", {
-    is: 2, // Cliente
+    is: 1, // Cliente
     then: Joi.object({
       nom_cliente: Joi.string().required(),
       ape_cliente: Joi.string().required(),
