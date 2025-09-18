@@ -4,6 +4,7 @@ import Input from "../components/Input";
 import { register } from "../services/authService";
 import { FaFacebook, FaGoogle, FaApple } from "react-icons/fa";
 import { FaAngleLeft } from "react-icons/fa";
+import PageHeader from "../components/PageHeader";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -36,20 +37,26 @@ const Register = () => {
   return (
     <div className="flex flex-col bg-zinc-100 justify-between">
       <div>
-        <form
-          onSubmit={handleSubmit}
-          className="p-6 w-96 mx-auto"
-        >
+        <form onSubmit={handleSubmit} className="p-6 w-96 mx-auto">
           <div className="my-6">
-            <FaAngleLeft className="text-3xl" />
+            <PageHeader title="Registro" />
           </div>
 
           <h2 className="text-2xl font-bold mb-4 text-center">
             ¡Crea tu cuenta y comienza tu entrenamiento!
           </h2>
 
-          <Input label="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Input label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <Input
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Input
+            label="Contraseña"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
           <div className="mb-3">
             <label className="block text-sm font-medium mb-1">Rol</label>
@@ -63,9 +70,21 @@ const Register = () => {
             </select>
           </div>
 
-          <Input label="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-          <Input label="Apellido" value={apellido} onChange={(e) => setApellido(e.target.value)} />
-          <Input label="DNI" value={dni} onChange={(e) => setDni(e.target.value)} />
+          <Input
+            label="Nombre"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
+          <Input
+            label="Apellido"
+            value={apellido}
+            onChange={(e) => setApellido(e.target.value)}
+          />
+          <Input
+            label="DNI"
+            value={dni}
+            onChange={(e) => setDni(e.target.value)}
+          />
 
           <button
             type="submit"

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import { login } from "../services/authService";
 import { FaFacebook, FaGoogle, FaApple } from "react-icons/fa";
-import { FaAngleLeft } from "react-icons/fa";
+import PageHeader from "../components/PageHeader";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -28,13 +28,10 @@ const Login = () => {
   return (
     <div className="flex flex-col h-screen bg-zinc-100 justify-between">
       <div className="">
-        <form
-          onSubmit={handleSubmit}
-          className="p-6 w-96"
-        >
-        <div className="my-6">
-          <FaAngleLeft className="text-3xl" />
-        </div>
+        <form onSubmit={handleSubmit} className="p-6 w-96">
+          <div className="my-6">
+            <PageHeader title="Iniciar sesion" />
+          </div>
           <h2 className="text-2xl font-bold mb-4 text-center">
             ¡Bienvenido de nuevo! Estamos encantados de verte de nuevo
           </h2>
@@ -65,7 +62,7 @@ const Login = () => {
             type="submit"
             className="w-full bg-black hover:bg-gray-800 text-white py-2 rounded-lg mt-2"
           >
-            Login
+            Iniciar sesion
           </button>
 
           {message && <p className="mt-2 text-center text-sm">{message}</p>}
