@@ -119,6 +119,26 @@ Registrar nuevo usuario.
 }
 \`\`\`
 
+### Perfil
+
+POST /perfil (con el JWT)
+
+Si el usuario es cliente (id_rol = 1), mandás:
+\`\`\`json
+{
+  "nombre": "Diego",
+  "apellido": "Pérez",
+  "dni": "12345678",
+  "fecha_nacimiento": "1990-01-01",
+  "genero": "masculino",
+  "telefono": "111222333",
+  "direccion": "Calle Falsa 123"
+}
+
+
+Si el usuario es entrenador (id_rol = 2), mandás lo mismo + especialidad_id.
+\`\`\`
+
 ### Clientes
 
 #### GET /api/clientes
