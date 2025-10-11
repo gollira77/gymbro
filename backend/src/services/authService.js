@@ -1,183 +1,80 @@
-// src/services/authService.js
-import bcrypt from "bcryptjs"
-import jwt from "jsonwebtoken"
-import crypto from "crypto"
-import { Op } from "sequelize"
-import { sequelize, Usuario, Rol, Cliente, Entrenador } from "../models/index.js"
-import Especialidad from "../models/Especialidad.js"
-import { sendEmail } from "../utils/emailHelper.js"
-import { logger } from "../utils/logger.js"
-import { AuthError, ValidationError } from "../utils/errors.js"
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import dotenv from "dotenv";
+import { Usuario } from "../models/index.js";
+import { sendEmail } from "../utils/emailHelper.js";
+dotenv.config();
 
-class AuthService {
-  /**
-   * Login de usuario
-   */
-  async login(email, password) {
-    const usuario = await Usuario.findOne({
-      where: { email, activo: true },
-      include: [{ model: Rol, as: "rol", attributes: ["rol", "descrip_rol"] }],
-    })
+export const registerUser = async ({ email, password, id_rol }) => {
+  const existente = await Usuario.findOne({ where: { email } });
+  if (existente) throw new Error("El correo electrónico ya está registrado");
 
-    if (!usuario) throw new AuthError("Credenciales inválidas")
+  const hashed = await bcrypt.hash(password, 10);
+  const nuevoUsuario = await Usuario.create({
+    email,
+    password: hashed,
+    id_rol,
+    activo: true,
+  });
 
-    const isValidPassword = await bcrypt.compare(password, usuario.password)
-    if (!isValidPassword) throw new AuthError("Credenciales inválidas")
+  return { id_usuario: nuevoUsuario.id_usuario, email: nuevoUsuario.email };
+};
 
-    const token = this.generateToken(usuario)
+export const loginUser = async ({ email, password }) => {
+  const user = await Usuario.findOne({ where: { email } });
+  if (!user) throw new Error("Usuario no encontrado");
+  if (!user.activo) throw new Error("El usuario no está activo");
 
-    let datosAdicionales = null
-    if (usuario.rol.rol === "cliente") {
-      datosAdicionales = await Cliente.findOne({ where: { id_usuario: usuario.id_usuario } })
-    } else if (usuario.rol.rol === "entrenador") {
-      datosAdicionales = await Entrenador.findOne({
-        where: { id_usuario: usuario.id_usuario },
-        include: [{ model: Especialidad, as: "especialidad" }],
-      })
-    }
+  const esValido = await bcrypt.compare(password, user.password);
+  if (!esValido) throw new Error("Contraseña incorrecta");
 
-    return {
-      token,
-      usuario: {
-        id: usuario.id_usuario,
-        email: usuario.email,
-        rol: usuario.rol.rol,
-        datosAdicionales,
-      },
-    }
-  }
+  const token = jwt.sign(
+    {
+      id_usuario: user.id_usuario,
+      email: user.email,
+      id_rol: user.id_rol,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRE || "30d" }
+  );
 
-  
-  /**
-   * Registro de usuario
-   */
-  async register(userData) {
-  const { email, password, id_rol, datosPersonales } = userData
+  return { token, usuario: { id_usuario: user.id_usuario, email: user.email, id_rol: user.id_rol } };
+};
 
-  return await sequelize.transaction(async (t) => {
-    // 1️⃣ Verificar si el email ya existe
-    const existingUser = await Usuario.findOne({ where: { email }, transaction: t })
-    if (existingUser) throw new ValidationError("El email ya está registrado")
+export const forgotPassword = async ({ email }) => {
+  const user = await Usuario.findOne({ where: { email } });
+  if (!user) throw new Error("Usuario no encontrado");
 
-    // 2️⃣ Hashear contraseña
-    const hashedPassword = await bcrypt.hash(password, 12)
+  const token = crypto.randomBytes(32).toString("hex");
+  const fechaExpiracion = new Date(Date.now() + 3600000); // 1 hora
 
-    // 3️⃣ Crear usuario
-    const usuario = await Usuario.create(
-      { email, password: hashedPassword, id_rol },
-      { transaction: t }
-    )
+  await user.update({ token_recuperacion: token, fecha_expiracion_token: fechaExpiracion });
 
-    // 4️⃣ Crear perfil según el rol
-    if (id_rol === 1) { // Cliente
-      const { nom_cliente, ape_cliente, dni_cliente, fecha_nacimiento_cliente, genero_cliente } = datosPersonales
-      if (!nom_cliente || !ape_cliente || !dni_cliente || !fecha_nacimiento_cliente || !genero_cliente) {
-        throw new ValidationError("Faltan datos obligatorios para cliente")
-      }
+  const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+  await sendEmail({
+    to: email,
+    subject: "Recuperación de contraseña - GymBro",
+    html: `<p>Has solicitado restablecer tu contraseña.</p>
+           <p>Haz clic en el siguiente enlace para continuar:</p>
+           <a href="${resetLink}">${resetLink}</a>
+           <p>Este enlace expirará en 1 hora.</p>`,
+  });
 
-      await Cliente.create(
-        {
-          id_usuario: usuario.id_usuario, // FK segura, ya existe Usuario
-          nombre: nom_cliente,
-          apellido: ape_cliente,
-          dni: dni_cliente,
-          fecha_nacimiento: fecha_nacimiento_cliente,
-          genero: genero_cliente,
-          telefono: datosPersonales.telefono_cliente || null,
-          direccion: datosPersonales.direccion_cliente || null,
-        },
-        { transaction: t }
-      )
-    } else if (id_rol === 2) { // Entrenador
-      const { nom_entrenador, ape_entrenador, dni_entrenador, fecha_nacimiento_entrenador, id_especialidad, genero } = datosPersonales
-      await Entrenador.create(
-        {
-          id_usuario: usuario.id_usuario,
-          nombre: nom_entrenador,
-          apellido: ape_entrenador,
-          dni: dni_entrenador,
-          fecha_nacimiento: fecha_nacimiento_entrenador,
-          id_especialidad,
-          genero,
-        },
-        { transaction: t }
-      )
-    }
+  return { message: "Correo de recuperación enviado" };
+};
 
-    // 5️⃣ Generar token
-    const token = this.generateToken(usuario)
-    return {
-      token,
-      usuario: { id: usuario.id_usuario, email: usuario.email, rol: id_rol },
-    }
-  })
-}
+export const resetPassword = async ({ token, password }) => {
+  const user = await Usuario.findOne({ where: { token_recuperacion: token } });
+  if (!user) throw new Error("Token inválido");
+  if (new Date() > new Date(user.fecha_expiracion_token)) throw new Error("El token ha expirado");
 
-  /**
-   * Solicitar recuperación de contraseña
-   */
-  async forgotPassword(email) {
-    const usuario = await Usuario.findOne({ where: { email } })
-    if (!usuario) return
+  const hashed = await bcrypt.hash(password, 10);
+  await user.update({
+    password: hashed,
+    token_recuperacion: null,
+    fecha_expiracion_token: null,
+  });
 
-    const resetToken = crypto.randomBytes(32).toString("hex")
-    const tokenExpiry = new Date(Date.now() + 3600000) // 1 hora
-
-    await usuario.update({ token_recuperacion: resetToken, fecha_expiracion_token: tokenExpiry })
-
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`
-
-    await sendEmail({
-      to: email,
-      subject: "Recuperación de contraseña - GymBro",
-      html: `
-        <h2>Recuperación de contraseña</h2>
-        <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace:</p>
-        <a href="${resetUrl}">Restablecer contraseña</a>
-        <p>Este enlace expira en 1 hora.</p>
-        <p>Si no solicitaste esto, ignora este email.</p>
-      `,
-    })
-  }
-
-  /**
-   * Restablecer contraseña
-   */
-  async resetPassword(token, newPassword) {
-    const usuario = await Usuario.findOne({
-      where: { token_recuperacion: token, fecha_expiracion_token: { [Op.gt]: new Date() } },
-    })
-
-    if (!usuario) throw new AuthError("Token inválido o expirado")
-
-    const hashedPassword = await bcrypt.hash(newPassword, 12)
-    await usuario.update({ password: hashedPassword, token_recuperacion: null, fecha_expiracion_token: null })
-  }
-
-  /**
-   * Verificar token JWT
-   */
-  async verifyToken(token) {
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET)
-      const usuario = await Usuario.findByPk(decoded.id, { include: [{ model: Rol, as: "rol", attributes: ["rol"] }] })
-      if (!usuario || !usuario.activo) throw new AuthError("Usuario no válido")
-      return { id: usuario.id_usuario, email: usuario.email, rol: usuario.rol.rol }
-    } catch (error) {
-      throw new AuthError("Token inválido")
-    }
-  }
-
-  /**
-   * Generar JWT
-   */
-  generateToken(usuario) {
-    return jwt.sign(
-      { id: usuario.id_usuario, email: usuario.email, rol: usuario.id_rol },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRE || "30d" }
-    )
-  }
-}
-
-export default new AuthService()
+  return { message: "Contraseña actualizada correctamente" };
+};

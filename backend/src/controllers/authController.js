@@ -1,93 +1,80 @@
-import authService from "../services/authService.js"
-import * as testService from "../services/testService.js" // <-- importamos testService
-import { successResponse, errorResponse } from "../utils/responseHelper.js"
-import { logger } from "../utils/logger.js"
+import {registerUser, loginUser, forgotPassword, resetPassword} from "../services/authService.js";
+import { successResponse, errorResponse } from "../utils/responseHelper.js";
+import { transporter } from "../config/email.js";
+import { Usuario } from "../models/index.js";
+import { v4 as uuidv4 } from "uuid";
 
-class AuthController {
-  /**
-   * Iniciar sesión de usuario
-   */
-  async login(req, res) {
-    try {
-      const { email, password } = req.body
-      const result = await authService.login(email, password)
-      logger.info(`Usuario ${email} inició sesión exitosamente`)
-      return successResponse(res, result, "Inicio de sesión exitoso")
-    } catch (error) {
-      logger.error("Error en login:", error)
-      return errorResponse(res, error.message, 401)
-    }
+export const register = async (req, res) => {
+  try {
+    const result = await registerUser(req.body);
+    return successResponse(res, result, "Usuario registrado correctamente", 201);
+  } catch (err) {
+    return errorResponse(res, err.message, 400);
   }
+};
 
-  /**
-   * Registrar nuevo usuario
-   */
-  async register(req, res) {
-    try {
-      const userData = req.body
-
-      // 1️⃣ Registramos al usuario y obtenemos su info
-      const result = await authService.register(userData)
-
-      logger.info(`Nuevo usuario registrado: ${userData.email}`)
-
-      // 2️⃣ Asignar automáticamente test básico al cliente recién registrado
-      if (result.id_rol === 1) { // asumimos rol = 1 -> cliente
-        await testService.asignarTestBasicoCliente(result.id_usuario)
-        logger.info(`Se asignó test básico al cliente: ${userData.email}`)
-      }
-
-      return successResponse(res, result, "Usuario registrado exitosamente", 201)
-    } catch (error) {
-      logger.error("Error en registro:", error)
-      return errorResponse(res, error.message, 400)
-    }
+export const login = async (req, res) => {
+  try {
+    const result = await loginUser(req.body);
+    return successResponse(res, result, "Inicio de sesión exitoso");
+  } catch (err) {
+    return errorResponse(res, err.message, 400);
   }
+};
 
-  /**
-   * Solicitar recuperación de contraseña
-   */
-  async forgotPassword(req, res) {
-    try {
-      const { email } = req.body
-      await authService.forgotPassword(email)
-      logger.info(`Solicitud de recuperación de contraseña para: ${email}`)
-      return successResponse(res, null, "Si el email existe, recibirás instrucciones para recuperar tu contraseña")
-    } catch (error) {
-      logger.error("Error en forgot password:", error)
-      return errorResponse(res, "Error interno del servidor", 500)
-    }
+export const forgot = async (req, res) => {
+  try {
+    const result = await forgotPassword(req.body);
+    return successResponse(res, result, "Correo de recuperación enviado");
+  } catch (err) {
+    return errorResponse(res, err.message, 400);
   }
+};
 
-  /**
-   * Restablecer contraseña con token
-   */
-  async resetPassword(req, res) {
-    try {
-      const { token, newPassword } = req.body
-      await authService.resetPassword(token, newPassword)
-      logger.info("Contraseña restablecida exitosamente")
-      return successResponse(res, null, "Contraseña restablecida exitosamente")
-    } catch (error) {
-      logger.error("Error en reset password:", error)
-      return errorResponse(res, error.message, 400)
-    }
+export const reset = async (req, res) => {
+  try {
+    const result = await resetPassword(req.body);
+    return successResponse(res, result, "Contraseña restablecida correctamente");
+  } catch (err) {
+    return errorResponse(res, err.message, 400);
   }
+};
 
-  /**
-   * Verificar validez del token JWT
-   */
-  async verifyToken(req, res) {
-    try {
-      const token = req.headers.authorization?.split(" ")[1]
-      if (!token) return errorResponse(res, "Token no proporcionado", 401)
-      const result = await authService.verifyToken(token)
-      return successResponse(res, result, "Token válido")
-    } catch (error) {
-      logger.error("Error en verify token:", error)
-      return errorResponse(res, error.message, 401)
-    }
+// Logout simple
+export const logout = async (req, res) => {
+  try {
+    // EZEQUIEL elimina el token desde el frontend nomas del localStorage o cookies, aquí solo devuelvo confirmación
+    return successResponse(res, {}, "Sesión cerrada correctamente");
+  } catch (err) {
+    return errorResponse(res, "Error al cerrar sesión", 500);
   }
-}
+};
 
-export default new AuthController()
+export const recuperarPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const usuario = await Usuario.findOne({ where: { email } });
+    if (!usuario) return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+
+    const token = uuidv4();
+    const expiracion = new Date(Date.now() + 3600000); // 1 hora
+
+    usuario.token_recuperacion = token;
+    usuario.fecha_expiracion_token = expiracion;
+    await usuario.save();
+
+    const resetLink = `http://localhost:3000/reset-password?token=${token}&email=${email}`;
+
+    await transporter.sendMail({
+      from: `"GymBro" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Recuperación de contraseña",
+      html: `<p>Hola, para resetear tu contraseña, hace click <a href="${resetLink}">aquí</a>.</p>`,
+    });
+
+    res.json({ success: true, message: "Correo de recuperación enviado" });
+  } catch (err) {
+    console.error("Error enviando correo:", err);
+    res.status(500).json({ success: false, message: "algo salió mal al enviar correo" });
+  }
+};

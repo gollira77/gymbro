@@ -1,14 +1,25 @@
-import { Router } from "express"
-import authController from "../controllers/authController.js"
-import {registerValidation, loginValidation, forgotPasswordValidation, resetPasswordValidation,
-} from "../middlewares/validators/authValidator.js"
-import { validateRequest } from "../middlewares/validateRequest.js"
+import { Router } from "express";
+import { register, login, forgot, reset } from "../controllers/authController.js";
+import { validateRequest } from "../middlewares/validateRequest.js";
+import {
+  registerSchema,
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from "../validations/authValidation.js";
 
-const router = Router()
+const router = Router();
 
-router.post("/register", registerValidation, validateRequest, authController.register.bind(authController))
-router.post("/login", loginValidation, validateRequest, authController.login.bind(authController))
-router.post("/forgot-password", forgotPasswordValidation, validateRequest, authController.forgotPassword.bind(authController))
-router.post("/reset-password", resetPasswordValidation, validateRequest, authController.resetPassword.bind(authController))
+// Registro
+router.post("/register", validateRequest(registerSchema), register);
 
-export default router
+// Login
+router.post("/login", validateRequest(loginSchema), login);
+
+// Recuperar contraseña
+router.post("/forgot-password", validateRequest(forgotPasswordSchema), forgot);
+
+// Restablecer contraseña
+router.post("/reset-password", validateRequest(resetPasswordSchema), reset);
+
+export default router;

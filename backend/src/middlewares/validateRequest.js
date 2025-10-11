@@ -1,10 +1,12 @@
-import { validationResult } from "express-validator"
-import { errorResponse } from "../utils/responseHelper.js"
+import { errorResponse } from "../utils/responseHelper.js";
 
-export const validateRequest = (req, res, next) => {
-  const errors = validationResult(req)
-  if (!errors.isEmpty()) {
-    return errorResponse(res, "Errores de validación", 400, errors.array())
-  }
-  next()
-}
+export const validateRequest = (schema) => {
+  return (req, res, next) => {
+    const { error } = schema.validate(req.body, { abortEarly: false });
+    if (error) {
+      const errors = error.details.map((d) => d.message);
+      return errorResponse(res, "Error de validación", 400, errors);
+    }
+    next();
+  };
+};
