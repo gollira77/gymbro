@@ -53,7 +53,8 @@ npm run migrate
 
 6. **Ejecutar seeders (opcional)**
 \`\`\`bash
-npm run seed
+node src/seeders/seedRoles.js
+
 \`\`\`
 
 ## 🚀 Uso
@@ -120,174 +121,140 @@ Registrar nuevo usuario.
 }
 \`\`\`
 
-### Perfil
+Obtener todos los clientes
+GET /api/clientes
 
-POST /perfil (con el JWT)
+Descripción: Devuelve la lista completa de clientes registrados.
 
-Si el usuario es cliente (id_rol = 1), mandás:
-\`\`\`json
+Request: Ninguno
+
+Response:
+
 {
-  "nombre": "Diego",
-  "apellido": "Pérez",
-  "dni": "12345678",
-  "fecha_nacimiento": "1990-01-01",
-  "genero": "masculino",
-  "telefono": "111222333",
-  "direccion": "Calle Falsa 123"
-}
-
-
-Si el usuario es entrenador (id_rol = 2), mandás lo mismo + especialidad_id.
-\`\`\`
-
-### Clientes
-
-#### GET /api/clientes
-Obtener lista de clientes (requiere autenticación).
-
-**Headers:**
-\`\`\`
-Authorization: Bearer <jwt_token>
-\`\`\`
-
-**Query Parameters:**
-- `page`: Número de página (default: 1)
-- `limit`: Elementos por página (default: 10)
-- `search`: Búsqueda por nombre o DNI
-
-#### POST /api/clientes
-Crear nuevo cliente.
-
-**Request:**
-\`\`\`json
-{
-  "nom_cliente": "María",
-  "ape_cliente": "García",
-  "dni_cliente": "87654321",
-  "fecha_nacimiento_cliente": "1985-05-15",
-  "telefono_cliente": "+1234567890",
-  "genero_cliente": "F",
-  "altura_cliente": 1.65,
-  "peso_cliente": 60.5
-}
-\`\`\`
-
-### Rutinas
-
-#### GET /api/rutinas
-Obtener rutinas disponibles.
-
-#### POST /api/rutinas
-Crear nueva rutina (solo entrenadores).
-
-**Request:**
-\`\`\`json
-{
-  "nombre_rutina": "Rutina de Fuerza",
-  "descrip_rutina": "Rutina enfocada en desarrollo de fuerza",
-  "id_entrenador": 1,
-  "id_tipo_rut": 1,
-  "duracion": 60,
-  "ejercicios": [
+  "success": true,
+  "data": [
     {
-      "id_ejercicio": 1,
-      "series": 3,
-      "repeticiones": 10,
-      "orden": 1
+      "id_cliente": 1,
+      "id_usuario": 1,
+      "nombre": "Juan",
+      "apellido": "Pérez",
+      "dni": "12345678",
+      "fecha_nacimiento": "1990-01-01",
+      "genero": "M",
+      "telefono": "123456789",
+      "direccion": "Calle Falsa 123"
+    },
+    {
+      "id_cliente": 2,
+      "id_usuario": 2,
+      "nombre": "María",
+      "apellido": "Gómez",
+      "dni": "87654321",
+      "fecha_nacimiento": "1992-05-15",
+      "genero": "F",
+      "telefono": "987654321",
+      "direccion": "Avenida Siempre Viva 456"
     }
   ]
 }
-\`\`\`
 
-#### POST /api/rutinas/:id/asignar
-Asignar rutina a cliente.
+Obtener un cliente por ID
+GET /api/clientes/:id
 
-**Request:**
-\`\`\`json
-{
-  "id_cliente": 1,
-  "observaciones": "Rutina personalizada para principiante"
-}
-\`\`\`
+Descripción: Devuelve los datos de un cliente específico por su ID.
 
-### Ejercicios
+Request:
 
-#### GET /api/ejercicios
-Obtener lista de ejercicios.
+id → ID del cliente en la URL
 
-#### POST /api/ejercicios
-Crear nuevo ejercicio.
+Response:
 
-**Request:**
-\`\`\`json
-{
-  "nom_ejercicio": "Press de banca",
-  "descrip_ejercicio": "Ejercicio para pecho y tríceps",
-  "id_categoria": 1,
-  "imagen": "url_imagen",
-  "video_url": "url_video"
-}
-\`\`\`
-
-### Pagos
-
-#### GET /api/pagos
-Obtener historial de pagos.
-
-#### POST /api/pagos
-Registrar nuevo pago.
-
-**Request:**
-\`\`\`json
-{
-  "id_cliente": 1,
-  "monto": 50.00,
-  "id_metodo": 1,
-  "id_estado": 1,
-  "registrado_por": 1
-}
-\`\`\`
-
-### Estadísticas
-
-#### GET /api/estadisticas/dashboard
-Obtener estadísticas del dashboard.
-
-**Response:**
-\`\`\`json
 {
   "success": true,
   "data": {
-    "totalClientes": 150,
-    "clientesActivos": 120,
-    "ingresosMes": 15000,
-    "pagosPendientes": 25,
-    "rutinasCreadas": 45,
-    "testRealizados": 89
+    "id_cliente": 1,
+    "id_usuario": 1,
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "dni": "12345678",
+    "fecha_nacimiento": "1990-01-01",
+    "genero": "M",
+    "telefono": "123456789",
+    "direccion": "Calle Falsa 123"
   }
 }
-\`\`\`
 
-## 🔐 Roles y Permisos
+Crear un cliente
+POST /api/clientes
 
-### Admin/Jefe
-- Acceso completo a todas las funcionalidades
-- Gestión de usuarios y roles
-- Visualización de estadísticas completas
-- Gestión de pagos y sueldos
+Descripción: Crea un nuevo cliente asociado a un usuario existente.
 
-### Entrenador
-- Crear y gestionar rutinas
-- Asignar rutinas a clientes
-- Ver progreso de clientes asignados
-- Gestionar ejercicios
+Request:
 
-### Cliente
-- Ver rutinas asignadas
-- Marcar rutinas como completadas
-- Realizar tests de rendimiento
-- Solicitar rutinas personalizadas
-- Ver historial de pagos
+{
+  "id_usuario": 5,
+  "nombre": "Lucía",
+  "apellido": "Martínez",
+  "dni": "11223344",
+  "fecha_nacimiento": "1995-03-20",
+  "genero": "F",
+  "telefono": "123123123",
+  "direccion": "Calle Nueva 789"
+}
+
+
+Response:
+
+{
+  "success": true,
+  "message": "Cliente creado correctamente",
+  "data": {
+    "id_cliente": 5,
+    "id_usuario": 5,
+    "nombre": "Lucía",
+    "apellido": "Martínez",
+    "dni": "11223344"
+  }
+}
+
+Actualizar un cliente
+PUT /api/clientes/:id
+
+Descripción: Actualiza los datos de un cliente existente.
+
+Request:
+
+{
+  "telefono": "555555555",
+  "direccion": "Calle Actualizada 321"
+}
+
+
+Response:
+
+{
+  "success": true,
+  "message": "Cliente actualizado correctamente",
+  "data": {
+    "id_cliente": 5,
+    "telefono": "555555555",
+    "direccion": "Calle Actualizada 321"
+  }
+}
+
+Eliminar un cliente
+DELETE /api/clientes/:id
+
+Descripción: Elimina un cliente por ID.
+
+Request: Ninguno (solo el parámetro id en la URL)
+
+Response:
+
+{
+  "success": true,
+  "message": "Cliente eliminado correctamente"
+}
 
 ## 🗂️ Estructura del Proyecto
 
@@ -300,14 +267,10 @@ src/
 ├── routes/          # Definición de rutas
 ├── services/        # Lógica de negocio
 ├── utils/           # Utilidades y helpers
+├── seeders/         # Crear los datos que necesitamos para la base de datos
 └── server.js        # Punto de entrada
 \`\`\`
 
-## 🧪 Testing
-
-\`\`\`bash
-npm test
-\`\`\`
 
 ## 📝 Logging
 
@@ -322,15 +285,3 @@ Los logs se guardan en:
 3. Configurar proxy reverso (Nginx)
 4. Habilitar HTTPS
 5. Configurar backup de base de datos
-
-## 🤝 Contribución
-
-1. Fork el proyecto
-2. Crear rama feature (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT.
