@@ -8,9 +8,9 @@ interface Payment {
 const PaymentsPage = () => {
   const nextPayment = { date: "20 Septiembre 2025", amount: "$25" };
   const history: Payment[] = [
-    { date: "20 Agosto 2025", amount: "$25" },
-    { date: "20 Julio 2025", amount: "$25" },
-    { date: "20 Junio 2025", amount: "$25" },
+    { date: "20 Agosto 2025", amount: "$20.000" },
+    { date: "20 Julio 2025", amount: "$25.000" },
+    { date: "20 Junio 2025", amount: "$25.000" },
   ];
 
   return (

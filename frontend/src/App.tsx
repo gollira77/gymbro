@@ -1,52 +1,39 @@
-// App.tsx
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
+// App.tsx (Refactorizado)
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-//import Home from "./pages/Home";
-//import AdminPage from "./pages/AdminPage";
-//import UserPage from "./pages/UserPage";
+// Importa tus componentes de página y rutas modulares
+import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
+import Test from "./pages/Test";
 import Welcome from "./pages/Welcome";
-import RoutinePage from "./pages/RoutinePage";
-import DashboardHome from "./pages/DashboardHome";
-import PaymentsPage from "./pages/PaymentsPage";
-import ProfilePage from "./pages/ProfilePage";
-import ProgressPage from "./pages/ProgressPage";
-//import Forbidden from "./pages/Forbidden";
+import UserRoutes from "./routes/UserRoutes";
 
 const App = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Redirige de "/" a "/welcome" */}
-          <Route path="/" element={<Navigate to="/welcome" replace />} />
+    // <AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        {/* --- Rutas Públicas --- */}
+        <Route path="/" element={<Navigate to="/welcome" replace />} />
+        <Route path="/welcome" element={<Welcome />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-          <Route path="/welcome" element={<Welcome />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/routine" element={<RoutinePage />} />
-          <Route path="/dashboard" element={<DashboardHome />} />
-          <Route path="/payments" element={<PaymentsPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/progress" element={<ProgressPage />} />
+        {/* --- Rutas de Dashboard de Usuario (Protegidas y con Layout) --- */}
+        {UserRoutes()}
 
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+        {/* --- Rutas de Dashboard de Entrenador (Protegidas y con Layout) --- */}
 
-          <Route path="/403" element={<h1> No puedes iniciar secion </h1>} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+        {/* --- Otras Rutas --- */}
+        <Route path="/test" element={<Test />} />
+        <Route path="/403" element={<h1>Acceso denegado</h1>} />
+
+        {/* Ruta para páginas no encontradas */}
+        <Route path="*" element={<h1>404: Página no encontrada</h1>} />
+      </Routes>
+    </BrowserRouter>
+    // </AuthProvider>
   );
 };
 

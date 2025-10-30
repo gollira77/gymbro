@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import Input from "../components/Input";
 import { register } from "../services/authService";
 import { FaFacebook, FaGoogle, FaApple } from "react-icons/fa";
-import { FaAngleLeft } from "react-icons/fa";
 import PageHeader from "../components/PageHeader";
 
 const Register = () => {
@@ -88,6 +87,7 @@ const Register = () => {
 
           <button
             type="submit"
+            disabled
             className="w-full bg-black hover:bg-gray-800 text-white py-2 rounded-lg mt-2"
           >
             Registrarse
@@ -111,13 +111,13 @@ const Register = () => {
           </div>
 
           <div className="flex justify-center gap-4 mb-4">
-            <button type="button" className="p-3 rounded-full">
+            <button disabled type="button" className="p-3 rounded-full">
               <FaFacebook size={20} className="text-blue-600" />
             </button>
-            <button type="button" className="p-3 rounded-full">
+            <button disabled type="button" className="p-3 rounded-full">
               <FaGoogle size={20} className="text-red-500" />
             </button>
-            <button type="button" className="p-3 rounded-full">
+            <button disabled type="button" className="p-3 rounded-full">
               <FaApple size={20} />
             </button>
           </div>
