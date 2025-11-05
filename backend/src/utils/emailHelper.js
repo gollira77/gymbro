@@ -12,6 +12,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Función genérica para enviar correos
 export const sendEmail = async ({ to, subject, html }) => {
   try {
     await transporter.sendMail({
@@ -25,4 +26,14 @@ export const sendEmail = async ({ to, subject, html }) => {
     console.error("Error enviando correo:", error);
     return false;
   }
+};
+
+// Función específica para enviar el correo de recuperación de contraseña
+export const sendPasswordResetEmail = async ({ to, subject, html }) => {
+  return transporter.sendMail({
+    from: `"GymBro" <${process.env.EMAIL_USER}>`,
+    to,
+    subject,
+    html,
+  });
 };

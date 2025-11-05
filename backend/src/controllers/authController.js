@@ -3,6 +3,7 @@ import { successResponse, errorResponse } from "../utils/responseHelper.js";
 import { transporter } from "../config/email.js";
 import { Usuario } from "../models/index.js";
 import { v4 as uuidv4 } from "uuid";
+import bcrypt from "bcryptjs";
 
 export const register = async (req, res) => {
   try {
@@ -33,10 +34,64 @@ export const forgot = async (req, res) => {
 
 export const reset = async (req, res) => {
   try {
-    const result = await resetPassword(req.body);
-    return successResponse(res, result, "Contraseña restablecida correctamente");
+     console.log("BODY:", req.body);
+     console.log("QUERY:", req.query);
+
+
+    const { token, email, password } = req.body;
+
+    if (!token || !email) {
+      return errorResponse(res, "Token o email no proporcionado", 400);
+    }
+
+    const usuario = await Usuario.findOne({
+      where: { email, token_recuperacion: token },
+    });
+
+    if (!usuario) {
+      return errorResponse(res, "Token inválido o usuario no encontrado", 404);
+    }
+
+    if (
+      usuario.fecha_expiracion_token &&
+      new Date() > usuario.fecha_expiracion_token
+    ) {
+      return errorResponse(res, "El enlace de recuperación ha expirado", 400);
+    }
+
+    // 🔑 Generar contraseña temporal
+    const tempPassword = `GymBro${Math.random().toString(36).slice(-4)}`;
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    await usuario.update({
+      password: hashedPassword,
+      token_recuperacion: null,
+      fecha_expiracion_token: null,
+    });
+
+    // 📧 Enviar nueva contraseña al usuario
+    await sendEmail({
+      to: email,
+      subject: "Tu nueva contraseña temporal - GymBro",
+      html: `
+        <div style="font-family: Arial; text-align: center; margin-top: 30px;">
+          <h2>🔑 Nueva contraseña temporal</h2>
+          <p>Tu nueva contraseña temporal es:</p>
+          <p style="font-size: 18px; font-weight: bold; color: #007bff;">${tempPassword}</p>
+          <p>Te recomendamos cambiarla luego desde tu perfil.</p>
+          <p>— El equipo de <strong>GymBro</strong></p>
+        </div>
+      `,
+    });
+
+    return successResponse(
+      res,
+      {},
+      "Contraseña temporal generada y enviada al correo"
+    );
   } catch (err) {
-    return errorResponse(res, err.message, 400);
+    console.error("Error en reset-password:", err);
+    return errorResponse(res, "Error al restablecer contraseña", 500);
   }
 };
 

@@ -1,4 +1,3 @@
-// src/models/index.js
 import { sequelize } from "../config/database.js"
 
 import Usuario from "./Usuario.js"

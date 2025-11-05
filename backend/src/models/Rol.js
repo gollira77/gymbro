@@ -1,7 +1,3 @@
-/**
- * Modelo Rol - Define los roles del sistema (admin, entrenador, cliente, etc.)
- */
-
 import { DataTypes } from "sequelize"
 import { sequelize } from "../config/database.js"
 
