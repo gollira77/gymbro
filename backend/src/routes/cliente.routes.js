@@ -9,7 +9,7 @@ import {
   marcarRutina,
   realizarTestBasico
 } from "../controllers/cliente.controller.js"
-
+import { responderTestBasico } from "../controllers/test.controller.js";
 
 const router = express.Router()
 
@@ -21,5 +21,6 @@ router.delete("/:id", eliminarCliente);
 router.get("/:id/rutinas", obtenerRutinasAsignadas);
 router.patch("/rutina/estado", marcarRutina);
 router.post("/test/basico"), realizarTestBasico;
+router.post("/:id/responder-test-basico", responderTestBasico);
 
 export default router

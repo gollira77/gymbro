@@ -1,6 +1,5 @@
-// src/models/TipoTest.js
-import { DataTypes } from "sequelize"
-import { sequelize } from "../config/database.js"
+import { DataTypes } from "sequelize";
+import { sequelize } from "../config/database.js";
 
 const TipoTest = sequelize.define("TipoTest", {
   id_tipo_test: {
@@ -8,17 +7,17 @@ const TipoTest = sequelize.define("TipoTest", {
     primaryKey: true,
     autoIncrement: true,
   },
-  nom_test: {
-    type: DataTypes.STRING(100),
+  nombre: {
+    type: DataTypes.STRING(100), // básico / medio / avanzado
     allowNull: false,
   },
-  descrip_tip_test: {
-    type: DataTypes.TEXT,
+  descripcion: {
+    type: DataTypes.STRING(255),
     allowNull: true,
-  },
+  }
 }, {
-  tableName: "tipos_tests",
+  tableName: "tipos_test",
   timestamps: false,
-})
+});
 
-export default TipoTest
+export default TipoTest;

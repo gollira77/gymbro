@@ -1,5 +1,7 @@
-import { DataTypes } from "sequelize"
-import { sequelize } from "../config/database.js"
+import { DataTypes } from "sequelize";
+import { sequelize } from "../config/database.js";
+import TipoTest from "./TipoTest.js";
+import Usuario from "./Usuario.js"; // si se llama Cliente.js, cámbialo
 
 const Test = sequelize.define("Test", {
   id_test: {
@@ -16,8 +18,8 @@ const Test = sequelize.define("Test", {
     allowNull: false,
   },
   resul_test: {
-    type: DataTypes.STRING(255), // más estándar
-    allowNull: true,
+    type: DataTypes.JSON, // permite guardar JSON completo
+    allowNull: false,
   },
   fecha_realizado: {
     type: DataTypes.DATE,
@@ -27,6 +29,6 @@ const Test = sequelize.define("Test", {
 }, {
   tableName: "tests",
   timestamps: false,
-})
+});
 
-export default Test
+export default Test;

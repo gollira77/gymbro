@@ -24,6 +24,8 @@ import CategoriaEjercicio from "./CategoriaEjercicio.js"
 import Turno from "./Turno.js"
 import Sueldo from "./Sueldo.js"
 import HorarioEntrenador from "./HorarioEntrenador.js"
+import PreguntaTest from "./PreguntaTest.js"
+
 
 const setupAssociations = () => {
   // Usuario - Rol
@@ -48,6 +50,11 @@ const setupAssociations = () => {
 
   Test.belongsTo(TipoTest, { foreignKey: "id_tipo_test", as: "tipoTest" })
   TipoTest.hasMany(Test, { foreignKey: "id_tipo_test", as: "tests" })
+
+  // Preguntas del Test - TipoTest
+  PreguntaTest.belongsTo(TipoTest, { foreignKey: "id_tipo_test", as: "tipoTest" })
+  TipoTest.hasMany(PreguntaTest, { foreignKey: "id_tipo_test", as: "preguntas" })
+
 
   // Reseña - Usuario
   Resena.belongsTo(Usuario, { foreignKey: "id_usuario", as: "usuario" })
@@ -124,6 +131,7 @@ export {
   Especialidad,
   Test,
   TipoTest,
+  PreguntaTest,
   Resena,
   Notificacion,
   TipoNotificacion,
