@@ -1,4 +1,4 @@
-import { Entrenador, Rutina, TipoRutina, Cliente, RutinaCliente } from "../models/index.js";
+import { Entrenador, Rutina, TipoRutina, Cliente, RutinaCliente, RutinaEjercicio, Ejercicio } from "../models/index.js";
 
 // GET /api/entrenadores/:id/rutinas
 export const obtenerRutinasEntrenador = async (req, res) => {
@@ -162,6 +162,106 @@ export const crearRutina = async (req, res) => {
       success: false,
       message: "Error interno del servidor",
       error: error.message
+    });
+  }
+};
+
+
+
+// POST /api/entrenadores/:id/rutinas/:idRutina/ejercicios
+export const agregarEjercicioARutina = async (req, res) => {
+  try {
+    const { id, idRutina } = req.params;
+    const { id_ejercicio, series, repeticiones, orden } = req.body;
+
+    //  Verificar entrenador
+    const entrenador = await Entrenador.findByPk(id);
+    if (!entrenador)
+      return res.status(404).json({ success: false, message: "Entrenador no encontrado" });
+
+    //  Verificar rutina del entrenador
+    const rutina = await Rutina.findOne({ where: { id_rutina: idRutina, id_entrenador: id } });
+    if (!rutina)
+      return res.status(403).json({
+        success: false,
+        message: "La rutina no pertenece a este entrenador",
+      });
+
+    //  Verificar ejercicio existente
+    const ejercicio = await Ejercicio.findByPk(id_ejercicio);
+    if (!ejercicio)
+      return res.status(404).json({ success: false, message: "Ejercicio no encontrado" });
+
+    //  Verificar si ya existe en la rutina
+    const existente = await RutinaEjercicio.findOne({
+      where: { id_rutina: idRutina, id_ejercicio },
+    });
+    if (existente)
+      return res
+        .status(400)
+        .json({ success: false, message: "El ejercicio ya está en esta rutina" });
+
+    //  Crear asociación
+    const nuevo = await RutinaEjercicio.create({
+      id_rutina: idRutina,
+      id_ejercicio,
+      series,
+      repeticiones,
+      orden,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Ejercicio agregado correctamente a la rutina",
+      data: nuevo,
+    });
+  } catch (error) {
+    console.error("Error agregando ejercicio:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al agregar ejercicio a la rutina",
+      error: error.message,
+    });
+  }
+};
+
+//  DELETE /api/entrenadores/:id/rutinas/:idRutina/ejercicios/:idEjercicio
+export const eliminarEjercicioDeRutina = async (req, res) => {
+  try {
+    const { id, idRutina, idEjercicio } = req.params;
+
+    //  Verificar que la rutina pertenece al entrenador
+    const rutina = await Rutina.findOne({ where: { id_rutina: idRutina, id_entrenador: id } });
+    if (!rutina)
+      return res.status(403).json({
+        success: false,
+        message: "La rutina no pertenece a este entrenador",
+      });
+
+    //  Buscar el registro en la tabla intermedia
+    const registro = await RutinaEjercicio.findOne({
+      where: { id_rutina: idRutina, id_ejercicio: idEjercicio },
+    });
+
+    if (!registro)
+      return res.status(404).json({
+        success: false,
+        message: "El ejercicio no está asociado a esta rutina",
+      });
+
+    //  Eliminar la relación
+    await registro.destroy();
+
+    res.json({
+      success: true,
+      message: "Ejercicio eliminado de la rutina correctamente",
+    });
+  } catch (error) {
+    console.error("Error eliminando ejercicio:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor",
+      error: error.message,
     });
   }
 };
