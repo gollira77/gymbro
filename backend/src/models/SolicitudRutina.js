@@ -13,7 +13,7 @@ const SolicitudRutina = sequelize.define("SolicitudRutina", {
   },
   id_rutina: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true
   },
   id_estado_soli: {
     type: DataTypes.INTEGER,
