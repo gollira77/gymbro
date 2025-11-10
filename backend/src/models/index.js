@@ -55,10 +55,14 @@ const setupAssociations = () => {
   PreguntaTest.belongsTo(TipoTest, { foreignKey: "id_tipo_test", as: "tipoTest" })
   TipoTest.hasMany(PreguntaTest, { foreignKey: "id_tipo_test", as: "preguntas" })
 
+  // Resena pertenece a Usuario
+  Resena.belongsTo(Usuario, { foreignKey: "id_usuario", as: "usuario" });
+  Usuario.hasMany(Resena, { foreignKey: "id_usuario", as: "resenas" });
 
-  // Reseña - Usuario
-  Resena.belongsTo(Usuario, { foreignKey: "id_usuario", as: "usuario" })
-  Usuario.hasMany(Resena, { foreignKey: "id_usuario", as: "resenas" })
+  // Y si también querés asociarla al Cliente:
+  Cliente.hasMany(Resena, { foreignKey: "id_cliente", as: "resenasCliente" });
+  Resena.belongsTo(Cliente, { foreignKey: "id_cliente", as: "cliente" });
+
 
   // Notificación - Usuario y TipoNotificacion
   Notificacion.belongsTo(Usuario, { foreignKey: "id_usuario", as: "usuario" })

@@ -37,7 +37,7 @@ const start = async () => {
     await sequelize.authenticate();
     console.log("Conectado a la BD");
 
-    await sequelize.sync({ alter: false, logging: false });
+    await sequelize.sync({ alter: true, logging: false });
     console.log("Modelos sincronizados con la BD");
 
     app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
