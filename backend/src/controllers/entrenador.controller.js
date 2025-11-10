@@ -1,4 +1,4 @@
-import { Entrenador, Rutina, TipoRutina, Cliente, RutinaCliente, RutinaEjercicio, Ejercicio } from "../models/index.js";
+import { Entrenador, Rutina, TipoRutina, Cliente, RutinaCliente, RutinaEjercicio, Ejercicio, SolicitudRutina, EstadoSolicitud } from "../models/index.js";
 
 // GET /api/entrenadores/:id/rutinas
 export const obtenerRutinasEntrenador = async (req, res) => {
@@ -262,6 +262,79 @@ export const eliminarEjercicioDeRutina = async (req, res) => {
       success: false,
       message: "Error interno del servidor",
       error: error.message,
+    });
+  }
+};
+
+
+
+// ✅ GET /api/entrenadores/:id/solicitudes-rutinas
+export const verSolicitudesRutinas = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const entrenador = await Entrenador.findByPk(id);
+    if (!entrenador)
+      return res.status(404).json({ success: false, message: "Entrenador no encontrado" });
+
+    const solicitudes = await SolicitudRutina.findAll({
+      include: [
+        {
+          model: Cliente,
+          as: "cliente",
+          attributes: ["id_cliente", "nombre", "apellido"]
+        },
+        {
+          model: EstadoSolicitud,
+          as: "estado",
+          attributes: ["nom_soli"]
+        },
+        {
+          model: Rutina,
+          as: "rutina",
+          required: false, // 🔑 LEFT JOIN (permite id_rutina = NULL)
+          attributes: ["id_rutina", "nombre_rutina", "id_entrenador"]
+        }
+      ],
+      order: [["fecha_solicitud", "DESC"]]
+    });
+
+    // 🔍 Filtrar solo las solicitudes relevantes
+    const filtradas = solicitudes.filter(s => {
+      // Mostrar si NO tiene rutina asignada (pendiente)
+      if (!s.rutina) return true;
+      // O si la rutina pertenece al entrenador actual
+      return s.rutina.id_entrenador === Number(id);
+    });
+
+    if (!filtradas.length) {
+      return res.status(200).json({
+        success: true,
+        message: "No hay solicitudes de rutinas personalizadas para este entrenador",
+        data: []
+      });
+    }
+
+    const resultado = filtradas.map(s => ({
+      id_solicitud: s.id_solicitud,
+      cliente: `${s.cliente.nombre} ${s.cliente.apellido}`,
+      rutina: s.rutina?.nombre_rutina || "Sin rutina asignada",
+      observaciones: s.observaciones,
+      fecha_solicitud: s.fecha_solicitud,
+      estado: s.estado.nom_soli
+    }));
+
+    return res.json({
+      success: true,
+      message: "Solicitudes obtenidas correctamente",
+      data: resultado
+    });
+  } catch (error) {
+    console.error("Error al obtener solicitudes:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno al obtener solicitudes de rutinas",
+      error: error.message
     });
   }
 };

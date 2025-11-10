@@ -1,9 +1,15 @@
 import express from "express";
-import { obtenerRutinasEntrenador, asignarRutinaACliente, crearRutina, agregarEjercicioARutina, eliminarEjercicioDeRutina  } from "../controllers/entrenador.controller.js";
+import { obtenerRutinasEntrenador, 
+        asignarRutinaACliente, 
+        crearRutina, 
+        agregarEjercicioARutina, 
+        eliminarEjercicioDeRutina,
+        verSolicitudesRutinas  } from "../controllers/entrenador.controller.js";
 
 const router = express.Router();
 
 router.get("/:id/rutinas", obtenerRutinasEntrenador);
+router.get("/:id/solicitudes-rutinas", verSolicitudesRutinas);
 
 router.post("/:id/asignar-rutina", asignarRutinaACliente);
 router.post("/:id/rutinas", crearRutina);
