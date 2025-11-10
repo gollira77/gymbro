@@ -12,6 +12,7 @@ import {
 import { responderTestBasico } from "../controllers/test.controller.js";
 import { crearSolicitudRutina, obtenerSolicitudesRutina } from "../controllers/solicitudRutina.controller.js";
 import { crearResena, obtenerResenas } from "../controllers/resena.controller.js";
+import { crearTurno, obtenerTurnosCliente, actualizarTurno } from "../controllers/turno.controller.js";
 
 
 const router = express.Router()
@@ -29,4 +30,8 @@ router.post("/:id/solicitudes-rutinas", crearSolicitudRutina);
 router.get("/:id/solicitudes-rutinas", obtenerSolicitudesRutina);
 router.post("/:id/resenas", crearResena);
 router.get("/resenas/all", obtenerResenas);
+router.post("/:id/turnos", crearTurno);
+router.get("/:id/turnos", obtenerTurnosCliente);
+router.patch("/:id/turnos/:idTurno", actualizarTurno);
+
 export default router
