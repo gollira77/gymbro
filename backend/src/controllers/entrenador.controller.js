@@ -338,3 +338,88 @@ export const verSolicitudesRutinas = async (req, res) => {
     });
   }
 };
+
+
+
+//  PATCH /api/entrenadores/:id/solicitudes-rutinas/:idSolicitud
+export const responderSolicitudRutina = async (req, res) => {
+  try {
+    const { id, idSolicitud } = req.params; // id del entrenador y de la solicitud
+    const { action, nombre_rutina, descrip_rutina, duracion, id_tipo_rut } = req.body;
+
+    //  Validar entrenador
+    const entrenador = await Entrenador.findByPk(id);
+    if (!entrenador)
+      return res.status(404).json({ success: false, message: "Entrenador no encontrado" });
+
+    //  Buscar solicitud existente
+    const solicitud = await SolicitudRutina.findByPk(idSolicitud);
+    if (!solicitud)
+      return res.status(404).json({ success: false, message: "Solicitud no encontrada" });
+
+    //  Validar que esté pendiente
+    if (solicitud.id_estado_soli !== 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Solo se pueden modificar solicitudes pendientes"
+      });
+    }
+
+    //  Rechazar solicitud
+    if (action === "rechazar") {
+      solicitud.id_estado_soli = 3; // ID del estado “rechazada”
+      await solicitud.save();
+
+      return res.json({
+        success: true,
+        message: "Solicitud rechazada correctamente",
+        solicitud
+      });
+    }
+
+    //  Aceptar solicitud
+    if (action === "aceptar") {
+      // Crear rutina nueva
+      const rutina = await Rutina.create({
+        nombre_rutina: nombre_rutina || "Rutina personalizada",
+        descrip_rutina: descrip_rutina || solicitud.observaciones,
+        id_entrenador: id,
+        id_tipo_rut: id_tipo_rut || 1, // tipo por defecto
+        duracion: duracion || "4 semanas"
+      });
+
+      // Asignar rutina al cliente
+      const asignacion = await RutinaCliente.create({
+        id_rutina: rutina.id_rutina,
+        id_cliente: solicitud.id_cliente
+      });
+
+      // Actualizar solicitud
+      solicitud.id_rutina = rutina.id_rutina;
+      solicitud.id_estado_soli = 2; // ID del estado “aceptada”
+      await solicitud.save();
+
+      return res.json({
+        success: true,
+        message: "Solicitud aceptada y rutina creada correctamente",
+        data: {
+          solicitud,
+          rutina,
+          asignacion
+        }
+      });
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: "Acción inválida, usa 'aceptar' o 'rechazar'"
+    });
+  } catch (error) {
+    console.error("Error al responder solicitud:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno al responder la solicitud",
+      error: error.message
+    });
+  }
+};
