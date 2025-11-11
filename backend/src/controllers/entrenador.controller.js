@@ -1,4 +1,19 @@
-import { Entrenador, Rutina, TipoRutina, Cliente, RutinaCliente, RutinaEjercicio, Ejercicio, SolicitudRutina, EstadoSolicitud } from "../models/index.js";
+import { Entrenador, 
+  Rutina, 
+  TipoRutina, 
+  Cliente, 
+  RutinaCliente, 
+  RutinaEjercicio, 
+  Ejercicio, 
+  SolicitudRutina, 
+  EstadoSolicitud,
+  Notificacion,
+  TipoNotificacion,
+  Usuario
+   } from "../models/index.js";
+import { enviarCorreo } from "../services/emailService.js";
+
+
 
 // GET /api/entrenadores/:id/rutinas
 export const obtenerRutinasEntrenador = async (req, res) => {
@@ -344,81 +359,115 @@ export const verSolicitudesRutinas = async (req, res) => {
 //  PATCH /api/entrenadores/:id/solicitudes-rutinas/:idSolicitud
 export const responderSolicitudRutina = async (req, res) => {
   try {
-    const { id, idSolicitud } = req.params; // id del entrenador y de la solicitud
+    const { id, idSolicitud } = req.params;
     const { action, nombre_rutina, descrip_rutina, duracion, id_tipo_rut } = req.body;
 
-    //  Validar entrenador
     const entrenador = await Entrenador.findByPk(id);
     if (!entrenador)
       return res.status(404).json({ success: false, message: "Entrenador no encontrado" });
 
-    //  Buscar solicitud existente
     const solicitud = await SolicitudRutina.findByPk(idSolicitud);
     if (!solicitud)
       return res.status(404).json({ success: false, message: "Solicitud no encontrada" });
 
-    //  Validar que esté pendiente
-    if (solicitud.id_estado_soli !== 1) {
+    if (solicitud.id_estado_soli !== 1)
       return res.status(400).json({
         success: false,
         message: "Solo se pueden modificar solicitudes pendientes"
       });
-    }
+
+    const cliente = await Cliente.findByPk(solicitud.id_cliente, {
+      include: { model: Usuario, as: "usuario" }
+    });
+
+    let mensaje = "";
+    let tipoNotificacion = null;
 
     //  Rechazar solicitud
     if (action === "rechazar") {
-      solicitud.id_estado_soli = 3; // ID del estado “rechazada”
+      solicitud.id_estado_soli = 3;
       await solicitud.save();
+
+      tipoNotificacion = await TipoNotificacion.findOrCreate({
+        where: { nom_noti: "Solicitud rechazada" },
+        defaults: { descrip_noti: "Notificación cuando una solicitud es rechazada" }
+      });
+
+      mensaje = `Tu solicitud de rutina personalizada fue rechazada por el entrenador ${entrenador.nombre} ${entrenador.apellido}.`;
+
+     await Notificacion.create({
+      id_usuario: cliente.usuario.id_usuario,
+      id_tipo_not: tipoNotificacion[0].id_tipo_not,
+      mensaje_noti: mensaje, 
+      fecha_envio: new Date(),
+      leido: false
+    });
+
+
+      //  Enviar correo automático
+      await enviarCorreo(cliente.usuario.email, "Solicitud rechazada", mensaje);
 
       return res.json({
         success: true,
-        message: "Solicitud rechazada correctamente",
+        message: "Solicitud rechazada, notificación creada y correo enviado",
         solicitud
       });
     }
 
     //  Aceptar solicitud
     if (action === "aceptar") {
-      // Crear rutina nueva
       const rutina = await Rutina.create({
         nombre_rutina: nombre_rutina || "Rutina personalizada",
         descrip_rutina: descrip_rutina || solicitud.observaciones,
         id_entrenador: id,
-        id_tipo_rut: id_tipo_rut || 1, // tipo por defecto
+        id_tipo_rut: id_tipo_rut || 1,
         duracion: duracion || "4 semanas"
       });
 
-      // Asignar rutina al cliente
       const asignacion = await RutinaCliente.create({
         id_rutina: rutina.id_rutina,
         id_cliente: solicitud.id_cliente
       });
 
-      // Actualizar solicitud
       solicitud.id_rutina = rutina.id_rutina;
-      solicitud.id_estado_soli = 2; // ID del estado “aceptada”
+      solicitud.id_estado_soli = 2;
       await solicitud.save();
+
+      tipoNotificacion = await TipoNotificacion.findOrCreate({
+        where: { nom_noti: "Solicitud aceptada" },
+        defaults: { descrip_noti: "Notificación cuando una solicitud es aceptada" }
+      });
+
+      mensaje = `Tu solicitud de rutina personalizada fue aceptada por ${entrenador.nombre} ${entrenador.apellido}. Ya podras ver los cambios de tu rutina: ${rutina.nombre_rutina}.`;
+
+      await Notificacion.create({
+        id_usuario: cliente.usuario.id_usuario,
+        id_tipo_not: tipoNotificacion[0].id_tipo_not,
+        mensaje_noti: mensaje, 
+        fecha_envio: new Date(),
+        leido: false
+      });
+
+
+      //  Enviar correo automático
+      await enviarCorreo(cliente.usuario.email, "Solicitud aceptada", mensaje);
 
       return res.json({
         success: true,
-        message: "Solicitud aceptada y rutina creada correctamente",
-        data: {
-          solicitud,
-          rutina,
-          asignacion
-        }
+        message: "Solicitud aceptada, rutina creada, notificación y correo enviados",
+        data: { solicitud, rutina, asignacion }
       });
     }
 
     return res.status(400).json({
       success: false,
-      message: "Acción inválida, usa 'aceptar' o 'rechazar'"
+      message: "Acción inválida. Usa 'aceptar' o 'rechazar'"
     });
   } catch (error) {
     console.error("Error al responder solicitud:", error);
     res.status(500).json({
       success: false,
-      message: "Error interno al responder la solicitud",
+      message: "Error interno al responder solicitud",
       error: error.message
     });
   }
