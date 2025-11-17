@@ -18,21 +18,26 @@ import { obtenerNotificacionesCliente } from "../controllers/notificacion.contro
 const router = express.Router()
 
 router.post("/", crearCliente);
-router.get("/", listarClientes);
-router.get("/:id", obtenerClientePorId);
-router.put("/:id", actualizarCliente);
-router.delete("/:id", eliminarCliente);
-router.get("/:id/rutinas", obtenerRutinasAsignadas);
-router.patch("/rutina/estado", marcarRutina);
 router.post("/test/basico"), realizarTestBasico;
 router.post("/:id/responder-test-basico", responderTestBasico);
 router.post("/:id/solicitudes-rutinas", crearSolicitudRutina);
-router.get("/:id/solicitudes-rutinas", obtenerSolicitudesRutina);
 router.post("/:id/resenas", crearResena);
-router.get("/resenas/all", obtenerResenas);
 router.post("/:id/turnos", crearTurno);
+
+router.get("/", listarClientes);
+router.get("/:id", obtenerClientePorId);
+router.get("/:id/rutinas", obtenerRutinasAsignadas);
+router.get("/:id/solicitudes-rutinas", obtenerSolicitudesRutina);
+router.get("/resenas/all", obtenerResenas);
 router.get("/:id/turnos", obtenerTurnosCliente);
-router.patch("/:id/turnos/:idTurno", actualizarTurno);
 router.get("/:id/notificaciones", obtenerNotificacionesCliente);
+
+router.put("/:id", actualizarCliente);
+
+router.delete("/:id", eliminarCliente);
+
+router.patch("/rutina/estado", marcarRutina);
+router.patch("/:id/turnos/:idTurno", actualizarTurno);
+
 
 export default router
